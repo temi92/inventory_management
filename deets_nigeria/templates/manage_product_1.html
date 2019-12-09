@@ -1,0 +1,36 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+
+
+{% block content %}
+
+<div class="container dp">
+
+
+    <div class="bottom-margin"> Date: <input type="text" id = "datepicker" class="form-control" placeholder="Enter Date" aria-label="Enter Date" aria-describedby="basic-addon1"></div>
+
+
+    <table id="product_tables" class="table table-hover" style="margin-top: 1.5em;">
+      <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center"> Product Name</th>
+            <th scope="col" class="text-center">Total Quantity of Bags </th>
+        </tr>
+      </thead>
+      <tbody>
+
+        <tr>
+            <td align="center">{{key}}</td>
+            <td align="center">{{key}}</td>
+        </tr>
+
+      </tbody>
+    </table>
+
+</div>
+
+
+
+{% endblock content %}

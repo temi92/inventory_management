@@ -1,0 +1,37 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block content %}
+
+<div class="container">
+   <div class="row">
+       <div class="col-md-6">
+           <a href="{{url_for('register_customer')}}">
+               <div class="card">
+                    <div class="card-body text-gray-800">
+                         <h5 class="text-gray-800"> Register Customer </h5>
+
+                    </div>
+
+                </div>
+           </a>
+       </div>
+       <div class="col-md-6">
+           <a href="{{url_for('manage_customer')}}">
+               <div class="card">
+                    <div class="card-body text-gray-800">
+                         <h5 class="text-gray-800"> Customer Info</h5>
+
+                    </div>
+                </div>
+           </a>
+       </div>
+
+
+
+   </div>
+
+</div>
+
+{% endblock %}
