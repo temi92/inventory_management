@@ -41,9 +41,9 @@
 
 
         cols += '<td><select class="form-control choices" name="choice'+ counter +'">'+ names + '</select></td>';
-        cols += '<td><input type="number" class="form-control"/></td>';
-        cols += '<td><input type="number" class="form-control" placeholder="100" readonly/></td>';
-        cols += '<td><input type="number" class="form-control" placeholder="200" readonly/></td>';
+        cols += '<td><input type="number" class="form-control quantity" value="0"></td>';
+        cols += '<td><input type="number" class="form-control" readonly/></td>';
+        cols += '<td><input type="number" class="form-control"  readonly/></td>';
         cols += '<td><a href="#" class="Del"><em class="fa fa-trash"></em></td>';
         newRow.append(cols);
 
@@ -60,23 +60,49 @@
     });
 
     //allow for update on user select choices of product
-    $("table tbody").on("click", "select", function(){
+    $("table tbody").on("click", "select, .quantity", function()
+    {
+        //if select tag
+        var total_amount = 0;
+        if($(this).is("select"))
+        {
 
-       var product_name = $(this).val();
-       var $quantity = $(this).parent().next().children("input");//get input tag for quantity field
+           var product_name = $(this).val();
+           var quantity = $(this).parent().next().children("input").val();
+           var $rate = $(this).parent().next().next().children("input");//get input tag for quantity field
+           var $amount = $(this).parent().next().next().next().children("input");
+
+        }
+        else
+        {
+            var product_name = $(this).parent().prev().children("select").val();
+            var quantity = $(this).val();
+            var $rate = $(this).parent().next().children("input");
+            var $amount = $(this).parent().next().next().children("input");
+        }
+
+
+
 
        //send product_name to flask backend...
             $.ajax
             ({
+
+
                 type:"POST",
-                url: "/get_quantity",
+                url: "/get_rate",
                 data: {product_name:product_name},
 
                 success:function(data)
                 {
 
                     var price = data.price;
-                    $quantity.val(price);
+
+                    //update rate field..
+                    $rate.val(price);
+                    total_amount = quantity * $rate.val()
+                    //update amount field
+                    $amount.val(total_amount);
 
 
                 },
@@ -178,9 +204,9 @@
                             {% endfor %}
                         </select>
                     </td>
-                    <td> <input type="number" name="name" class="form-control" /></td>
-                    <td><input class="form-control" type="number" placeholder="100" readonly></td>
-                    <td><input class="form-control" type="number" placeholder="200" readonly></td>
+                    <td> <input type="number" name="name" class="form-control quantity" value="0"/></td>
+                    <td><input class="form-control" type="number" readonly></td>
+                    <td><input class="form-control" type="number" readonly></td>
 
                     <!--<td class="col">  <input type="text" name="name" class="form-control" /></td>-->
                     <!--<td class="col">  <input type="text" name="name" class="form-control" /></td>-->

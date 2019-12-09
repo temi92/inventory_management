@@ -44,7 +44,7 @@ def add_order():
 
 
 
-@app.route("/get_quantity", methods=["POST"])
+@app.route("/get_rate", methods=["POST"])
 def get_quantity():
     product_name = request.form["product_name"]
     price = Product.query.filter_by(product_name= product_name).first().price

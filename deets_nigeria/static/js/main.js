@@ -5,9 +5,6 @@ $(document).ready(function () {
     $('#customer_tables').DataTable();
 
 
-
-
-
      // get date ...
      //this is for manage_product_1.html...
 
@@ -30,7 +27,8 @@ $(document).ready(function () {
                 data = JSON.stringify(data);
                 data = JSON.parse(data);
                 var propertyNames = Object.keys(data);
-                for (var i=0; i < propertyNames.length; i++){
+                for (var i=0; i < propertyNames.length; i++)
+                {
                     v = propertyNames[i];
 
                     $("#product_tables tbody").append('<tr><td align="center">' + propertyNames[i] + '</td><td align="center">'+ data[v] + '</td><tr>');
@@ -38,8 +36,6 @@ $(document).ready(function () {
 
 
             },
-
-
 
         });
 
