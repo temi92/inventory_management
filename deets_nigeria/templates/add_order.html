@@ -19,7 +19,7 @@
             }
         });
 
-        var counter = 1;
+    var counter = 1;
 
         //add row ...
     $("#addrow").on("click", function() {
@@ -41,9 +41,9 @@
 
 
         cols += '<td><select class="form-control choices" name="choice'+ counter +'">'+ names + '</select></td>';
-        cols += '<td><input type="number" class="form-control quantity" value="0"></td>';
+        cols += '<td><input type="number" class="form-control quantity" value="0" min="0"></td>';
         cols += '<td><input type="number" class="form-control" readonly/></td>';
-        cols += '<td><input type="number" class="form-control"  readonly/></td>';
+        cols += '<td><input type="number" class="form-control amount" value="0" readonly/></td>';
         cols += '<td><a href="#" class="Del"><em class="fa fa-trash"></em></td>';
         newRow.append(cols);
 
@@ -53,17 +53,21 @@
     });
 
     // delete row ...
-    $("#myTable").on("click", ".Del", function (event) {
+    $("#myTable").on("click", ".Del", function (event)
+    {
         $(this).closest("tr").remove();
         counter--;
 
     });
 
+
     //allow for update on user select choices of product
-    $("table tbody").on("click", "select, .quantity", function()
+    $("table tbody").on("click", "select, .quantity, .Del", function()
     {
+        var totalAmount=0; // sum of all the product prices
+
+
         //if select tag
-        var total_amount = 0;
         if($(this).is("select"))
         {
 
@@ -73,12 +77,20 @@
            var $amount = $(this).parent().next().next().next().children("input");
 
         }
-        else
+        else if ($(this).is(".quantity"))
         {
             var product_name = $(this).parent().prev().children("select").val();
             var quantity = $(this).val();
             var $rate = $(this).parent().next().children("input");
             var $amount = $(this).parent().next().next().children("input");
+        }
+
+        else {
+            var product_name = $(".Del").parent().prev().prev().prev().prev().children("select").val();
+            var quantity = $(".Del").parent().prev().prev().prev().children("input").val();
+            var $rate =  $(".Del").parent().prev().prev().children("input");
+            var $amount = $(".Del").parent().prev().children("input");
+
         }
 
 
@@ -100,9 +112,18 @@
 
                     //update rate field..
                     $rate.val(price);
-                    total_amount = quantity * $rate.val()
+                    var total_amount_per_line = quantity * $rate.val()
                     //update amount field
-                    $amount.val(total_amount);
+                    $amount.val(total_amount_per_line);
+
+
+
+                    //update total_amount..
+                    $(".amount").each(function(index, element){
+
+                        totalAmount+=parseInt($(element).val());
+                        $("#totalAmount").val(totalAmount);
+                    });
 
 
                 },
@@ -110,9 +131,9 @@
             });
 
 
-
-
     });
+
+
 
 
 
@@ -137,6 +158,21 @@
             });
 
        });
+
+        // ajax function to send request to flask..
+        function sendRequest(url,successCallback,failCallback){
+        $.ajax({
+            url: url,
+            timeout: 3000,
+            dataType: "json",
+            success: function(data,textStatus,jqXHR){
+                successCallback(data,textStatus,jqXHR);
+            },
+            error: function(jqXHR,textStatus,errorThrown){
+                failCallback(jqXHR,textStatus,errorThrown);
+            }
+        });
+}
 
 
 
@@ -204,9 +240,9 @@
                             {% endfor %}
                         </select>
                     </td>
-                    <td> <input type="number" name="name" class="form-control quantity" value="0"/></td>
+                    <td> <input type="number" name="name" class="form-control quantity" min="0" value="0"/></td>
                     <td><input class="form-control" type="number" readonly></td>
-                    <td><input class="form-control" type="number" readonly></td>
+                    <td><input class="form-control amount" type="number" value="0" readonly></td>
 
                     <!--<td class="col">  <input type="text" name="name" class="form-control" /></td>-->
                     <!--<td class="col">  <input type="text" name="name" class="form-control" /></td>-->
