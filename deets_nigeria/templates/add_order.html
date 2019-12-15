@@ -41,9 +41,9 @@
 
 
         cols += '<td><select class="form-control choices" name="choice'+ counter +'">'+ names + '</select></td>';
-        cols += '<td><input type="number" class="form-control quantity" value="0" min="0"></td>';
-        cols += '<td><input type="number" class="form-control" readonly/></td>';
-        cols += '<td><input type="number" class="form-control amount" value="0" readonly/></td>';
+        cols += '<td><input type="number" class="form-control quantity" name="quantity'+ counter +'" value="0" min="0"></td>';
+        cols += '<td><input type="number" class="form-control" name="rate'+ counter +'" readonly/></td>';
+        cols += '<td><input type="number" class="form-control amount" name="amount'+ counter +'"value="0" readonly/></td>';
         cols += '<td><a href="#" class="Del"><em class="fa fa-trash"></em></td>';
         newRow.append(cols);
 
@@ -240,9 +240,9 @@
                             {% endfor %}
                         </select>
                     </td>
-                    <td> <input type="number" name="name" class="form-control quantity" min="0" value="0"/></td>
-                    <td><input class="form-control" type="number" readonly></td>
-                    <td><input class="form-control amount" type="number" value="0" readonly></td>
+                    <td> <input type="number" name="quantity0" class="form-control quantity"  min="0" value="0"/></td>
+                    <td><input class="form-control" name="rate0" type="number" readonly></td>
+                    <td><input class="form-control amount" name="amount0" type="number" value="0" readonly></td>
 
                     <!--<td class="col">  <input type="text" name="name" class="form-control" /></td>-->
                     <!--<td class="col">  <input type="text" name="name" class="form-control" /></td>-->

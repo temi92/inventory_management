@@ -36,9 +36,11 @@ def add_order():
         payment_status = request.form["payment_status"]
         counters = int(request.form["counters"])
         names = [request.form["choice" + str(i)] for i in range(counters)]
+        quantity = [request.form["quantity" + str(i)] for i in range(counters)]
+        rate = [request.form["rate" + str(i)] for i in range(counters)]
+        amount = [request.form["amount" + str(i)] for i in range(counters)]
 
-
-        print(date, customer_name, payment_status,names)
+        print(date, customer_name, payment_status,names, quantity, rate, amount)
 
     return render_template("add_order.html", product_names=product_names, product_names_json=product_names_json)
 
