@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect,url_for, request,jsonify
 from deets_nigeria.forms import WarehouseForm, CustomerForm, UpdateProductForm
 from deets_nigeria import app,db
-from deets_nigeria.models import Product, Customer, ProductInfo
+from deets_nigeria.models import Product, Customer, ProductInfo, Order
 import json
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
@@ -29,9 +29,13 @@ def add_order():
     product = Product.query.all()
     product_names = list([p.product_name for p in product])
     product_names_json = json.dumps(product_names)#this allows us to get list of products to user..
+    customer = None
 
     if request.method == "POST":
         date = request.form["date"]
+        # convert to date object.
+        date = datetime.strptime(date, '%m/%d/%Y')
+
         customer_name = request.form["customerName"]
         payment_status = request.form["payment_status"]
         counters = int(request.form["counters"])
@@ -39,8 +43,20 @@ def add_order():
         quantity = [request.form["quantity" + str(i)] for i in range(counters)]
         rate = [request.form["rate" + str(i)] for i in range(counters)]
         amount = [request.form["amount" + str(i)] for i in range(counters)]
+        print(date, customer_name, payment_status, names, quantity, rate, amount)
+        order_details = list(zip(names, quantity, rate, amount))
 
-        print(date, customer_name, payment_status,names, quantity, rate, amount)
+        #get customer and product from db.
+        customer = Customer.query.filter_by(name=customer_name).first()
+        print(customer)
+        if customer is None:
+            return jsonify({"customer_present": 0})
+        print ("customer exists")
+        #TODO check if customer is in DATABASE..
+        product = Product.query.filter_by(product_name=order_details[0][0]).first()
+        #create a new order...
+        order = Order(date, customer,product, order_details[0][1], order_details[0][2], order_details[0][3])
+        order.save_to_db()
 
     return render_template("add_order.html", product_names=product_names, product_names_json=product_names_json)
 
@@ -49,7 +65,7 @@ def add_order():
 @app.route("/get_rate", methods=["POST"])
 def get_quantity():
     product_name = request.form["product_name"]
-    price = Product.query.filter_by(product_name= product_name).first().price
+    price = Product.query.filter_by(product_name=product_name).first().price
     return jsonify({"price": price})
 
 @app.route("/manage_order", methods=["GET", "POST"])

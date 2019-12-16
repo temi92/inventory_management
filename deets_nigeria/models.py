@@ -52,7 +52,6 @@ class Customer(Base, db.Model):
     phone_number = db.Column(db.String(200))
     order = db.relationship("Order", backref="customer", lazy="select")
 
-
     def __init__(self, name, address, phone_number):
         self.name = name
         self.address = address
@@ -68,8 +67,18 @@ class Order(Base, db.Model):
     date = db.Column(db.DateTime, nullable=False)
     customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"))
-    def __init__(self, date):
+    quantity = db.Column(db.Integer, nullable=False)
+    rate = db.Column(db.Float, nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+
+    def __init__(self, date, customer, product, quantity, rate, amount):
         self.date = date
+        self.quantity = quantity
+        self.rate = rate
+        self.amount = amount
+        self.customer = customer
+        self.product = product
+
 
 
 
