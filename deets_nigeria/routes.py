@@ -33,6 +33,7 @@ def add_order():
 
     if request.method == "POST":
         date = request.form["date"]
+        #TODO MAKE SURE date was input
         # convert to date object.
         date = datetime.strptime(date, '%m/%d/%Y')
 
@@ -48,15 +49,15 @@ def add_order():
 
         #get customer and product from db.
         customer = Customer.query.filter_by(name=customer_name).first()
-        print(customer)
         if customer is None:
-            return jsonify({"customer_present": 0})
-        print ("customer exists")
-        #TODO check if customer is in DATABASE..
-        product = Product.query.filter_by(product_name=order_details[0][0]).first()
+            return jsonify({"success": 0})
         #create a new order...
-        order = Order(date, customer,product, order_details[0][1], order_details[0][2], order_details[0][3])
-        order.save_to_db()
+        for i in range(len(order_details)):
+            product = Product.query.filter_by(product_name=order_details[i][0]).first()
+            order = Order(date, customer,product, order_details[i][1], order_details[i][2], order_details[i][3])
+            order.save_to_db()
+
+        return jsonify({"success":1})
 
     return render_template("add_order.html", product_names=product_names, product_names_json=product_names_json)
 

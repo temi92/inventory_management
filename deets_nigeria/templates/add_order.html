@@ -11,6 +11,7 @@
 
 
         $("#is_registered").hide();
+        $("#add_order").hide();
 
         // display datepicker ..
 
@@ -158,8 +159,15 @@
                 success:function(data)
                 {
                     //check if customer is registered..
-                    if (data.customer_present===0) {
-                     $("#is_registered").show();
+                    if (data.success===0) {
+                     $("#is_registered").show().delay(2000).fadeOut();
+                    }
+                    else if(data.success===1)
+                    {
+                     $("#add_order").show().delay(2000).fadeOut();
+
+
+
                     }
 
                 },
@@ -196,11 +204,11 @@
 
         <div class="alert alert-danger alert-dismissible fade show" id="is_registered" role="alert">
                 Customer not registered
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
         </div>
 
+        <div class="alert alert-success alert-dismissible fade show" id="add_order" role="alert">
+            Succesfully added order
+        </div>
 
 
         <div class="form-group row">
