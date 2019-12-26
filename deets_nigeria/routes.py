@@ -27,6 +27,9 @@ def order():
 @app.route("/add_order", methods=["GET", "POST"])
 def add_order():
     product = Product.query.all()
+    #get customers
+    customers = Customer.query.all()
+
     product_names = list([p.product_name for p in product])
     product_names_json = json.dumps(product_names)#this allows us to get list of products to user..
     customer = None
@@ -59,7 +62,7 @@ def add_order():
 
         return jsonify({"success":1})
 
-    return render_template("add_order.html", product_names=product_names, product_names_json=product_names_json)
+    return render_template("add_order.html", product_names=product_names, product_names_json=product_names_json, customers=customers)
 
 
 
