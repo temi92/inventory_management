@@ -196,6 +196,20 @@ def delete_product():
         return redirect(url_for("delete_product", products=product_names))
     return render_template("delete_product.html", products=product_names)
 
+
+
+@app.route("/product_quantity", methods=["GET"])
+def product_quantity():
+    products = Product.query.all()
+    return render_template("product_quantity.html", products=products)
+
+
+
+@app.route("/view order", methods=["GET"])
+def view_order():
+    return render_template("view_order.html")
+
+
 @app.route("/view_customer", methods=["GET", "POST"])
 def manage_customer():
     #get all customers..

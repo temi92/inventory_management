@@ -16,7 +16,7 @@
 
         {% for customer in customers%}
         <tr>
-            <td align="center">{{customer.name}}</td>
+            <td align="center"> <a href="{{url_for('view_order')}}"> {{customer.name}}</a> </td>
             <td align="center">{{customer.address}}</td>
             <td align="center">{{customer.phone_number}}</td>
         </tr>

@@ -3,6 +3,7 @@ $(document).ready(function () {
 
 
     $('#customer_tables').DataTable();
+    $("#product_tables").DataTable();
 
 
      // get date ...
