@@ -10,7 +10,7 @@
     $(document).ready(function(){
 
 
-        $("#is_registered").hide();
+        $("#check_warehouse").hide();
         $("#add_order").hide();
 
         // display datepicker ..
@@ -66,7 +66,7 @@
 
 
     //allow for update on user select choices of product
-    $("table tbody").on("click", "select, .quantity, .Del", function()
+    $("table tbody").on("click keyup", "select, .quantity, .Del", function()
     {
         var totalAmount=0; // sum of all the product prices
 
@@ -158,9 +158,9 @@
 
                 success:function(data)
                 {
-                    //check if customer is registered..
+                    //check if sufficient quantity of product
                     if (data.success===0) {
-                     $("#is_registered").show().delay(2000).fadeOut();
+                     $("#check_warehouse").show().delay(2000).fadeOut();
                     }
                     else if(data.success===1)
                     {
@@ -200,10 +200,13 @@
 
 {% block content %}
 
+
+
+
     <form method="POST" id="order_form">
 
-        <div class="alert alert-danger alert-dismissible fade show" id="is_registered" role="alert">
-                Customer not registered
+        <div class="alert alert-danger alert-dismissible fade show" id="check_warehouse" role="alert">
+                Insufficient product in warehouse
         </div>
 
         <div class="alert alert-success alert-dismissible fade show" id="add_order" role="alert">
@@ -226,8 +229,8 @@
 
         <div class="form-group row" >
             <div class="col-md-6">
-                <label for="customerNames">Customer Name</label>
-                <select class="form-control" id="customerNames">
+                <label for="customerName">Customer Name</label>
+                <select class="form-control" id="customerName" name="customerName">
                             {% for customer in customers %}
                                 <option>{{customer.name}}</option>
                             {% endfor %}

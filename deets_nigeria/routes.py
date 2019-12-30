@@ -50,21 +50,34 @@ def add_order():
         print(date, customer_name, payment_status, names, quantity, rate, amount)
         order_details = list(zip(names, quantity, rate, amount))
 
-        #get customer and product from db.
+        #get customer and product from db..
         customer = Customer.query.filter_by(name=customer_name).first()
-        if customer is None:
-            return jsonify({"success": 0})
+
+
         #create a new order...
         for i in range(len(order_details)):
             product = Product.query.filter_by(product_name=order_details[i][0]).first()
-            order = Order(date, customer,product, order_details[i][1], order_details[i][2], order_details[i][3])
-            order.save_to_db()
+            #check if product quantity is sufficient...
+            if int(order_details[i][1]) <= product.quantity:
+                product.quantity -= int(order_details[i][1])
+                product.save_to_db()
+                order = Order(date, customer,product, order_details[i][1], order_details[i][2], order_details[i][3])
+                order.save_to_db()
+            else:
+                return jsonify({"success": 0})
+
+
+
+
+        # update customer paid status if sufficient product in stock
+        customer.paid_status = payment_status
+        customer.save_to_db()
+
 
         return jsonify({"success":1})
-
     return render_template("add_order.html", product_names=product_names, product_names_json=product_names_json, customers=customers)
 
-
+#what is input??.i.e.ee
 
 @app.route("/get_rate", methods=["POST"])
 def get_quantity():

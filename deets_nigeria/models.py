@@ -50,6 +50,7 @@ class Customer(Base, db.Model):
     name = db.Column(db.String(200), unique=True)
     address = db.Column(db.String(200))
     phone_number = db.Column(db.String(200))
+    paid_status = db.Column(db.String(200))
     order = db.relationship("Order", backref="customer", lazy="select")
 
     def __init__(self, name, address, phone_number):
