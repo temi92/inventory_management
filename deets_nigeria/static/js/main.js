@@ -4,6 +4,7 @@ $(document).ready(function () {
 
     $('#customer_tables').DataTable();
     $("#product_tables").DataTable();
+    $("#view_order_tables").DataTable();
 
 
      // get date ...

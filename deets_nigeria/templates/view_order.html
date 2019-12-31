@@ -1,9 +1,66 @@
 {% extends "index.html" %}
 
+{% block script %}
+
+{{ super() }}
+
+<script>
+        $(document).ready(function(){
+
+
+           {% for customer in data %}
+
+            {% if 'Paid' in customer %}
+
+                $("#paid_status_{{loop.index}}").removeClass("badge-danger");
+
+                $("#paid_status_{{loop.index}}").addClass("badge-success");
+
+            {% endif %}
+
+
+           {% endfor %}
+
+
+        });
+
+</script>
+
+
+
+{% endblock script %}
+
+
+
 {% block content %}
 
+<table id="view_order_tables" class="table table-hover" style="margin-top: 1.5em;">
+      <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center"> Customer Name</th>
+            <th scope="col" class="text-center">Paid status </th>
+            <th scope="col" class="text-center"> Total Amount (Naira)</th>
+            <th scope="col" class="text-center"> Action</th>
+        </tr>
+      </thead>
+      <tbody>
 
-<div> view orders</div>
+
+        {% for customer in data %}
+
+        <tr>
+            <td align="center"> {{customer.0}} </td>
+            <td align="center"><span class="badge badge-pill badge-danger" id="paid_status_{{loop.index}}">{{customer.1}}</span></td>
+            <td align="center">{{customer.2}}</td>
+            <td align="center"> {{ loop.index }}</td>
+
+        </tr>
+
+        {% endfor %}
+      </tbody>
+
+</table>
+
 
 
 

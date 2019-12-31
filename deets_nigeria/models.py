@@ -51,12 +51,14 @@ class Customer(Base, db.Model):
     address = db.Column(db.String(200))
     phone_number = db.Column(db.String(200))
     paid_status = db.Column(db.String(200))
+    total_amount = db.Column(db.Integer)
     order = db.relationship("Order", backref="customer", lazy="select")
 
-    def __init__(self, name, address, phone_number):
+    def __init__(self, name, address, phone_number,total_amount=0):
         self.name = name
         self.address = address
         self.phone_number = phone_number
+        self.total_amount = total_amount
 
     def __repr__(self):
         return str(self.id)

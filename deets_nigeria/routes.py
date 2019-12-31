@@ -40,6 +40,7 @@ def add_order():
         # convert to date object.
         date = datetime.strptime(date, '%m/%d/%Y')
 
+        #grab form data.
         customer_name = request.form["customerName"]
         payment_status = request.form["payment_status"]
         counters = int(request.form["counters"])
@@ -47,7 +48,8 @@ def add_order():
         quantity = [request.form["quantity" + str(i)] for i in range(counters)]
         rate = [request.form["rate" + str(i)] for i in range(counters)]
         amount = [request.form["amount" + str(i)] for i in range(counters)]
-        print(date, customer_name, payment_status, names, quantity, rate, amount)
+        total_amount = request.form["totalAmount"]
+        print(date, customer_name, payment_status, names, quantity, rate, amount,total_amount)
         order_details = list(zip(names, quantity, rate, amount))
 
         #get customer and product from db..
@@ -71,6 +73,7 @@ def add_order():
 
         # update customer paid status if sufficient product in stock
         customer.paid_status = payment_status
+        customer.total_amount = int(total_amount)
         customer.save_to_db()
 
 
@@ -207,7 +210,24 @@ def product_quantity():
 
 @app.route("/view order", methods=["GET"])
 def view_order():
-    return render_template("view_order.html")
+    #get customers who have placed orders..
+    orders = Order.query.all()
+    customers = set([order.customer_id for order in orders])
+
+    customer_names = [Customer.query.filter_by(id=customer).first().name for customer in customers]
+    paid_status = [Customer.query.filter_by(id=customer).first().paid_status for customer in customers]
+    totalAmount = [Customer.query.filter_by(id=customer).first().total_amount for customer in customers]
+    data = list(zip(customer_names, paid_status, totalAmount))
+
+    print (customer_names, paid_status, totalAmount)
+    print (data)
+
+
+
+
+    return render_template("view_order.html", data = data)
+
+
 
 
 @app.route("/view_customer", methods=["GET", "POST"])
@@ -215,5 +235,8 @@ def manage_customer():
     #get all customers..
     customers = Customer.query.all()
     return render_template("view_customer.html", customers=customers)
+
+
+
 
 
