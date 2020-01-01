@@ -1,11 +1,12 @@
 from flask import render_template, flash, redirect,url_for, request,jsonify
 from deets_nigeria.forms import WarehouseForm, CustomerForm, UpdateProductForm
 from deets_nigeria import app,db
-from deets_nigeria.models import Product, Customer, ProductInfo, Order
+from deets_nigeria.models import Product, Customer, ProductInfo, Order, OrderItem
 import json
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
-
+import random
+import string
 
 @app.route('/')
 def index():
@@ -49,32 +50,37 @@ def add_order():
         rate = [request.form["rate" + str(i)] for i in range(counters)]
         amount = [request.form["amount" + str(i)] for i in range(counters)]
         total_amount = request.form["totalAmount"]
-        print(date, customer_name, payment_status, names, quantity, rate, amount,total_amount)
         order_details = list(zip(names, quantity, rate, amount))
 
         #get customer and product from db..
         customer = Customer.query.filter_by(name=customer_name).first()
 
+        # generate unqiue order code ..
+        order_id = ''.join(random.choice(string.digits) for _ in range(5))
+        # create a new order...
+        ord = Order(date, order_id, payment_status, total_amount)
 
-        #create a new order...
+
+
         for i in range(len(order_details)):
             product = Product.query.filter_by(product_name=order_details[i][0]).first()
             #check if product quantity is sufficient...
-            if int(order_details[i][1]) <= product.quantity:
+            if int(order_details[i][1]) <= product.quantity: #TODO ..FIX THIS BUG..
                 product.quantity -= int(order_details[i][1])
                 product.save_to_db()
-                order = Order(date, customer,product, order_details[i][1], order_details[i][2], order_details[i][3])
-                order.save_to_db()
+
+
+                o = OrderItem(order_details[i][1], order_details[i][2], order_details[i][3])
+                o.order = ord
+                o.product = product
+                o.save_to_db()
             else:
                 return jsonify({"success": 0})
 
+        #save order info to database..
+        ord.customer = customer
+        ord.save_to_db()
 
-
-
-        # update customer paid status if sufficient product in stock
-        customer.paid_status = payment_status
-        customer.total_amount = int(total_amount)
-        customer.save_to_db()
 
 
         return jsonify({"success":1})
