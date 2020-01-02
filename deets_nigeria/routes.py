@@ -8,6 +8,8 @@ from datetime import datetime
 import random
 import string
 
+
+items = None
 @app.route('/')
 def index():
     return render_template("dashboard.html")
@@ -214,26 +216,62 @@ def product_quantity():
 
 
 
-@app.route("/view order", methods=["GET"])
+@app.route("/view_order", methods=["GET"])
 def view_order():
     #get customers who have placed orders..
     orders = Order.query.all()
+
+
     customers = set([order.customer_id for order in orders])
 
-    customer_names = [Customer.query.filter_by(id=customer).first().name for customer in customers]
-    paid_status = [Customer.query.filter_by(id=customer).first().paid_status for customer in customers]
-    totalAmount = [Customer.query.filter_by(id=customer).first().total_amount for customer in customers]
-    data = list(zip(customer_names, paid_status, totalAmount))
+    customer_names = [Customer.query.filter_by(id=order.customer_id).first().name for order in orders]
+    date = [order.date.date() for order in orders]
+    order_no = [order.order_id for order in orders]
+    paid_status = [order.paid_status for order in orders]
+    totalAmount = [order.total_amount for order in orders]
 
-    print (customer_names, paid_status, totalAmount)
-    print (data)
+    data = list(zip(customer_names, date, order_no, paid_status, totalAmount))
 
-
-
-
-    return render_template("view_order.html", data = data)
+    return render_template("view_order.html", data=data)
 
 
+@app.route("/get_order_item", methods=["POST"])
+def get_order_item():
+    global items
+    if request.method == "POST":
+        order_id = request.json["order_id"]
+        items = OrderItem.query.filter_by(order_id=order_id).all()
+    return ""
+
+
+@app.route("/order_details", methods=["GET", "POST"])
+def order_details():
+    global items
+    #TODO Get product product names..
+    if items is not None:
+        product_names = [Product.query.filter_by(id=item.product_id).first().product_name for item in items]
+        quantity = [item.quantity for item in items]
+        rate = [item.rate for item in items]
+        amount = [item.amount for item in items]
+        print (product_names, quantity, rate, amount)
+        items = list(zip(product_names, quantity, rate, amount))
+    return render_template("order_details.html", items=items)
+
+
+@app.route("/edit_payment_status", methods=["POST", "GET"])
+def edit_paymentStatus():
+    if request.method == "POST":
+        payment_status = request.form["payment_status"]
+        order_code = request.form["order_code"]
+
+        #remove preeciding spaces
+        order_code = order_code.strip()
+
+        #change paid status
+        order = Order.query.filter_by(order_id=order_code).first()
+        order.paid_status = payment_status
+        order.save_to_db()
+    return redirect(url_for("view_order"))
 
 
 @app.route("/view_customer", methods=["GET", "POST"])
