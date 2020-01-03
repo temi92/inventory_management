@@ -281,6 +281,8 @@ def manage_customer():
     return render_template("view_customer.html", customers=customers)
 
 
-
+@app.route("/view_invoice")
+def view_invoice():
+    return render_template("invoice1.html")
 
 

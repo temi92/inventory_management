@@ -57,6 +57,29 @@
             });
 
 
+            //stuff to print
+            $('.print').bind('click',function() {
+
+                var thePopup = window.open( '', "Invoice", "menubar=0,location=0,height=700,width=700" );
+
+                if (thePopup)
+                {
+                    $(thePopup.document).ready(function(){
+                        thePopup.document.write('<html><head><title>Print it!</title> <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}"></head><body>');
+                        thePopup.document.write($("#print-content-body").html());
+                        $("#print-content-body", thePopup.document).css('display', 'block');
+                        thePopup.document.write('</body></html>');
+                        thePopup.print();
+
+
+                    });
+
+                }
+
+
+})
+
+
         });
 
 </script>
@@ -79,7 +102,10 @@
             <th scope="col" class="text-center"> Order No</th>
             <th scope="col" class="text-center">Paid status </th>
             <th scope="col" class="text-center"> Total Amount (Naira)</th>
-            <th scope="col" class="text-center"> Action</th>
+            <th scope="col" class="text-center"> Edit</th>
+            <th scope="col" class="text-center"> Print</th>
+
+
         </tr>
       </thead>
       <tbody>
@@ -94,6 +120,7 @@
             <td align="center"><span class="badge badge-pill badge-danger" id="paid_status_{{loop.index}}">{{customer.3}}</span></td>
             <td align="center">{{customer.4}}</td>
             <td align="center"><button class="btn btn-default update" data-toggle="modal" data-target="#update"><em class="fa fa-pencil-square-o"></em></button></td>
+            <td align="center"><button class="btn btn-default print"><em class="fa fa-print"></em></button></td>
 
         </tr>
 
@@ -133,6 +160,76 @@
     </div>
   </div>
 </div>
+
+
+<!--print items-->
+
+<div id="print-content-body" hidden>
+    <div class="container">
+        <div class="inv-title">
+            <h1 class="no-margin">DEE TS NIGERIA LIMITED</h1>
+            <h2 class="no-margin">WAY BILL</h2>
+
+
+        </div>
+        <div class="inv-header">
+            <div>
+                <h2>Company Details</h2>
+                <ul>
+                    <li><b>ADDRESS:</b> BLOCK A PLOT 1 GATEWAY INDUSTRIAL <br/> ESTATE KM 12 IBAFO LAGOS-IBADAN EXPRESSWAY LAGOS <br/> NIGERIA</li>
+                    <li><b>TEL:</b> +238060780707</li>
+                    <li><b>EMAIL:</b> DEETSNIGERIA@HOTMAIL.COM</li>
+                </ul>
+
+                <h2>Client Information</h2>
+                <ul>
+                    <li><b>Name:</b> Temi</li>
+                    <li><b>Address:</b>Liverpool</li>
+                    <li><b>Phone no: </b>eadzhosting@gmail.com</li>
+                </ul>
+            </div>
+            <div>
+                <table>
+                    <tr>
+                        <th>Order Date</th>
+                        <td>12-02-2018</td>
+                    </tr>
+                    <tr>
+                        <th>Order No</th>
+                        <td>12334</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="inv-body">
+            <table>
+                <thead>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Product x</td>
+                        <td>1</td>
+
+                    </tr>
+                    <tr>
+                        <td> Product y</td>
+                        <td>1</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <footer>
+            <h2>Signature</h2>
+            <p>.........................................</p>
+        </footer>
+
+    </div>
+
+
+</div>
+
 
 
 
