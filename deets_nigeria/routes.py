@@ -274,6 +274,32 @@ def edit_paymentStatus():
     return redirect(url_for("view_order"))
 
 
+
+@app.route("/print_order", methods=["POST"])
+def print_order():
+    if request.method == "POST":
+        customer_name = request.json["customer_name"].strip()
+        date = request.json["date"].strip()
+        order_id = request.json["order_id"].strip()
+
+        #get address and phone_no
+        address = Customer.query.filter_by(name=customer_name).first().address
+        phone_no = Customer.query.filter_by(name=customer_name).first().phone_number
+        items = OrderItem.query.filter_by(order_id=order_id).all()
+
+        product_names = [Product.query.filter_by(id=item.product_id).first().product_name for item in items]
+        quantity = [item.quantity for item in items]
+
+        print (product_names, quantity)
+
+        item_details = list(zip(product_names, quantity))
+        print(item_details)
+        return jsonify({"items":item_details,"address":address, "phone_no":phone_no })
+
+        #print(customer_name, date, order_id, address)
+
+    return ""
+
 @app.route("/view_customer", methods=["GET", "POST"])
 def manage_customer():
     #get all customers..

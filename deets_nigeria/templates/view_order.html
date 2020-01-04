@@ -49,7 +49,7 @@
 
           });
 
-            //send order_id to different route.
+            //update form with order_code to send to back-end.
             $(".update").on("click",  function(){
                 var order_id = $(this).parent().prev().prev().prev().children(".orderNo").html();
                 $("#order_code").val(order_id);
@@ -58,27 +58,86 @@
 
 
             //stuff to print
-            $('.print').bind('click',function() {
+            $('.print').bind('click',function()
+            {
 
-                var thePopup = window.open( '', "Invoice", "menubar=0,location=0,height=700,width=700" );
+                //grab customer name, address, date of order, order_no, product, quantity..
+                var customer_name = $(this).parent().prev().prev().prev().prev().prev().prev().text();
+                var date = $(this).parent().prev().prev().prev().prev().prev().text();
+                var order_id = $(this).parent().prev().prev().prev().prev().text();
 
-                if (thePopup)
-                {
-                    $(thePopup.document).ready(function(){
-                        thePopup.document.write('<html><head><title>Print it!</title> <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}"></head><body>');
-                        thePopup.document.write($("#print-content-body").html());
-                        $("#print-content-body", thePopup.document).css('display', 'block');
-                        thePopup.document.write('</body></html>');
-                        thePopup.print();
+                //markup for adding rows to table
 
 
-                    });
 
-                }
+                //send to backend..
+                $.ajax
+                ({
+                    type:"POST",
+                    url: "/print_order",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({customer_name:customer_name, date:date, order_id:order_id}),
+                    success: function (data) {
+
+                        //remove rows from table first
+                        $("#product_description tr").remove();
 
 
-})
+                        for (var i=0; i < data.items.length;i++)
 
+                        {
+
+                           var markup = "<tr><td  id='product_name"+i+"'></td><td id='quantity"+ i+"'></td></tr>";
+
+
+
+
+                            console.log(data.items[i][0]); //product_name
+                            console.log(data.items[i][1]); //quantity
+
+                            $("#product_description").append(markup);
+
+                            $("#product_name"+i).text(data.items[i][0]);
+                            $("#quantity"+i).text(data.items[i][1]);
+
+
+
+                        }
+
+
+                         //update name, date, order_id
+                        $("#name").text(customer_name);
+                        $("#date").text(date);
+                        $("#order_no").text(order_id);
+
+
+                        //update address and phone number..
+                        $("#address").text(data.address);
+                        $("#phone_no").text(data.phone_no);
+
+
+
+                        //create pop up window..
+                        var thePopup = window.open( '', "Invoice", "menubar=0,location=0,height=700,width=700" );
+
+                        if (thePopup)
+                            {
+                                $(thePopup.document).ready(function(){
+                                    thePopup.document.write('<html><head><title>Dee ts Nigeria</title> <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}"></head><body>');
+                                    thePopup.document.write($("#print-content-body").html());
+                                    $("#print-content-body", thePopup.document).css('display', 'block');
+                                    thePopup.document.write('</body></html>');
+                                    //thePopup.print();
+
+
+                                });
+
+                            }
+
+                    },
+                });
+
+             });
 
         });
 
@@ -183,20 +242,20 @@
 
                 <h2>Client Information</h2>
                 <ul>
-                    <li><b>Name:</b> Temi</li>
-                    <li><b>Address:</b>Liverpool</li>
-                    <li><b>Phone no: </b>eadzhosting@gmail.com</li>
+                    <li><b>Name:</b><div id="name" style="display: inline-block"> </div></li>
+                    <li><b>Address:</b><div id="address" style="display: inline-block"></div></li>
+                    <li><b>Phone no: </b><div id="phone_no" style="display: inline-block"> </div></li>
                 </ul>
             </div>
             <div>
                 <table>
                     <tr>
                         <th>Order Date</th>
-                        <td>12-02-2018</td>
+                        <td id="date"></td>
                     </tr>
                     <tr>
                         <th>Order No</th>
-                        <td>12334</td>
+                        <td id="order_no"></td>
                     </tr>
                 </table>
             </div>
@@ -207,16 +266,7 @@
                     <th>Product</th>
                     <th>Quantity</th>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>Product x</td>
-                        <td>1</td>
-
-                    </tr>
-                    <tr>
-                        <td> Product y</td>
-                        <td>1</td>
-                    </tr>
+                <tbody id="product_description">
                 </tbody>
             </table>
         </div>
