@@ -39,7 +39,7 @@ def add_order():
 
     if request.method == "POST":
         date = request.form["date"]
-        #TODO MAKE SURE date was input
+
         # convert to date object.
         date = datetime.strptime(date, '%m/%d/%Y')
 
@@ -224,7 +224,11 @@ def view_order():
 
     customers = set([order.customer_id for order in orders])
 
+    print (customers)
+
     customer_names = [Customer.query.filter_by(id=order.customer_id).first().name for order in orders]
+
+
     date = [order.date.date() for order in orders]
     order_no = [order.order_id for order in orders]
     paid_status = [order.paid_status for order in orders]
