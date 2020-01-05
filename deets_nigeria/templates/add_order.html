@@ -1,0 +1,302 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block script %}
+{{ super() }}
+
+
+<script>
+    $(document).ready(function(){
+
+        $("#check_warehouse").hide();
+        $("#add_order").hide();
+
+        // display datepicker ..
+
+        $("#orderDate").datepicker({onSelect: function(dateText, inst)
+
+            {
+
+            }
+        });
+
+    var counter = 1;
+
+        //add row ...
+    $("#addrow").on("click", function() {
+
+
+        //get product names from server..
+        product_names_json = JSON.parse({{ product_names_json | tojson }});
+
+        var names = "";
+
+        for (var i =0; i < product_names_json.length; i++)
+        {
+            names = names.concat("<option>" +  product_names_json[i] + "</option>");
+
+
+        }
+        var newRow = $("<tr>");
+        var cols = "";
+
+
+        cols += '<td><select class="form-control choices" name="choice'+ counter +'">'+ names + '</select></td>';
+        cols += '<td><input type="number" class="form-control quantity" name="quantity'+ counter +'" value="0" min="0"></td>';
+        cols += '<td><input type="number" class="form-control" name="rate'+ counter +'" readonly/></td>';
+        cols += '<td><input type="number" class="form-control amount" name="amount'+ counter +'"value="0" readonly/></td>';
+        cols += '<td><a href="#" class="Del"><em class="fa fa-trash"></em></td>';
+        newRow.append(cols);
+
+        $("#myTable tbody").append(newRow);
+        counter++;
+
+    });
+
+    // delete row ...
+    $("#myTable").on("click", ".Del", function (event)
+    {
+        $(this).closest("tr").remove();
+        counter--;
+
+    });
+
+
+
+    //allow for update on user select choices of product
+    $("table tbody").on("click keyup", "select, .quantity, .Del", function()
+    {
+        var totalAmount=0; // sum of all the product prices
+
+
+        //if select tag
+        if($(this).is("select"))
+        {
+
+           var product_name = $(this).val();
+           var quantity = $(this).parent().next().children("input").val();
+           var $rate = $(this).parent().next().next().children("input");//get input tag for quantity field
+           var $amount = $(this).parent().next().next().next().children("input");
+
+        }
+        else if ($(this).is(".quantity"))
+        {
+            var product_name = $(this).parent().prev().children("select").val();
+            var quantity = $(this).val();
+            var $rate = $(this).parent().next().children("input");
+            var $amount = $(this).parent().next().next().children("input");
+        }
+
+        else {
+            var product_name = $(".Del").parent().prev().prev().prev().prev().children("select").val();
+            var quantity = $(".Del").parent().prev().prev().prev().children("input").val();
+            var $rate =  $(".Del").parent().prev().prev().children("input");
+            var $amount = $(".Del").parent().prev().children("input");
+
+        }
+
+
+
+
+       //send product_name to flask backend...
+            $.ajax
+            ({
+
+
+                type:"POST",
+                url: "/get_rate",
+                data: {product_name:product_name},
+
+                success:function(data)
+                {
+
+
+                    var price = data.price;
+
+                    //update rate field..
+                    $rate.val(price);
+                    var total_amount_per_line = quantity * $rate.val()
+                    //update amount field
+                    $amount.val(total_amount_per_line);
+
+
+
+                    //update total_amount..
+                    $(".amount").each(function(index, element){
+
+                        totalAmount+=parseInt($(element).val());
+                        $("#totalAmount").val(totalAmount);
+                    });
+
+
+                },
+
+            });
+
+
+    });
+
+
+
+
+
+    //prevent form from submitting and submit via ajax..
+    $("#order_form").submit(function(e)
+    {
+            e.preventDefault(e);
+
+
+            $("#counter").val(counter);
+            //send counter variable to flask backend...
+            $.ajax
+            ({
+                type:"POST",
+                url: "/add_order",
+                data: $("#order_form").serialize(),
+
+                success:function(data)
+                {
+                    //check if sufficient quantity of product
+                    if (data.success===0) {
+                     $("#check_warehouse").show().delay(2000).fadeOut();
+                    }
+                    else if(data.success===1)
+                    {
+                     $("#add_order").show().delay(2000).fadeOut();
+
+
+
+                    }
+
+                },
+
+            });
+
+       });
+
+        // ajax function to send request to flask..
+        function sendRequest(url,successCallback,failCallback){
+        $.ajax({
+            url: url,
+            timeout: 3000,
+            dataType: "json",
+            success: function(data,textStatus,jqXHR){
+                successCallback(data,textStatus,jqXHR);
+            },
+            error: function(jqXHR,textStatus,errorThrown){
+                failCallback(jqXHR,textStatus,errorThrown);
+            }
+        });
+}
+
+    });
+</script>
+
+
+{% endblock script %}
+
+
+{% block content %}
+
+
+
+
+    <form method="POST" id="order_form">
+
+        <div class="alert alert-danger alert-dismissible fade show" id="check_warehouse" role="alert">
+                Insufficient product in warehouse
+        </div>
+
+        <div class="alert alert-success alert-dismissible fade show" id="add_order" role="alert">
+            Succesfully added order
+        </div>
+
+
+        <div class="form-group row">
+            <div class="col-md-6">
+                <label for="orderDate">Order Date</label>
+                <input type="text" class="form-control" id="orderDate" placeholder="Date of Order" name="date" required>
+                <!--this is hidden input to track the number of times user adds product -->
+
+                <input hidden type="number"  id="counter" name="counters" value =""/>
+
+            </div>
+
+         </div>
+
+
+        <div class="form-group row" >
+            <div class="col-md-6">
+                <label for="customerName">Customer Name</label>
+                <select class="form-control" id="customerName" name="customerName">
+                            {% for customer in customers %}
+                                <option>{{customer.name}}</option>
+                            {% endfor %}
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div class="form-group row" >
+            <div class="col-md-6">
+                <label for="payment">Paid Status</label>
+                <select class="form-control" id="payment" name="payment_status">
+                            <option>Paid</option>
+                            <option>Not Paid</option>
+
+                </select>
+            </div>
+
+        </div>
+
+
+        <div class="form-group">
+        <table id="myTable" class="table">
+            <thead>
+                    <tr>
+                        <th scope="col"> Product</th>
+                        <th scope="col"> Quantity</th>
+                        <th scope="col"> Rate</th>
+                        <th scope="col"> Amount</th>
+                    </tr>
+            </thead>
+            <tbody>
+
+                <tr>
+                    <td class="expand_size">
+                        <select class="form-control choices" name="choice0">
+                            {% for name in product_names %}
+                                <option>{{name}}</option>
+                            {% endfor %}
+                        </select>
+                    </td>
+                    <td> <input type="number" name="quantity0" class="form-control quantity"  min="0" value="0"/></td>
+                    <td><input class="form-control" name="rate0" type="number" readonly></td>
+                    <td><input class="form-control amount" name="amount0" type="number" value="0" readonly></td>
+
+                    <!--<td class="col">  <input type="text" name="name" class="form-control" /></td>-->
+                    <!--<td class="col">  <input type="text" name="name" class="form-control" /></td>-->
+                    <!--<td class="col"><button> <em class="fa fa-trash"></em></button></td>-->
+
+                </tr>
+            </tbody>
+
+
+        </table>
+
+            <button type="button" class="btn btn-primary" id="addrow">Add Product</button>
+            <input type="submit" class="btn btn-success" value ="Save Changes"/>
+
+                <div class="float-md-right">
+                    <label for="totalAmount" >Total price</label>
+                    <input class="form-control" type="number" placeholder="0" id="totalAmount" name="totalAmount" readonly>
+                </div>
+        </div>
+    </form>
+
+
+{% endblock content %}

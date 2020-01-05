@@ -1,0 +1,38 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+
+<table id="view_order_tables" class="table table-hover" style="margin-top: 1.5em;">
+      <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center"> Product</th>
+            <th scope="col" class="text-center"> Quantity </th>
+            <th scope="col" class="text-center"> Rate</th>
+            <th scope="col" class="text-center">Amount (Naira) </th>
+
+        </tr>
+      </thead>
+      <tbody>
+
+        {% if items is not none %}
+            {% for item in items %}
+
+            <tr>
+                <td align="center"> {{item.0}} </td>
+                <td align="center"> {{item.1}} </td>
+                <td align="center"> {{item.2}} </td>
+                <td align="center">{{item.3}}</td>
+            </tr>
+            {% endfor %}
+      {% endif %}
+      </tbody>
+
+</table>
+
+
+
+
+
+
+{% endblock content %}

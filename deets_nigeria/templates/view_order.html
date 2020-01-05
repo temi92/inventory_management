@@ -1,0 +1,288 @@
+{% extends "index.html" %}
+
+{% block script %}
+
+{{ super() }}
+
+<script>
+        $(document).ready(function(){
+
+
+           {% for customer in data %}
+
+            {% if 'Paid' in customer %}
+
+                $("#paid_status_{{loop.index}}").removeClass("badge-danger");
+
+                $("#paid_status_{{loop.index}}").addClass("badge-success");
+
+            {% endif %}
+
+
+
+
+           {% endfor %}
+
+
+
+          //send order_no to backend..
+
+          $(".orderNo").on("click", function(){
+
+
+
+
+                var order_id = $(this).text();
+
+                //send to backend..
+                $.ajax
+                ({
+                    type:"POST",
+                    url: "/get_order_item",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({order_id:order_id}),
+                    success: function (data) {
+
+                    },
+                });
+
+
+          });
+
+            //update form with order_code to send to back-end.
+            $(".update").on("click",  function(){
+                var order_id = $(this).parent().prev().prev().prev().children(".orderNo").html();
+                $("#order_code").val(order_id);
+
+            });
+
+
+            //stuff to print
+            $('.print').bind('click',function()
+            {
+
+                //grab customer name, address, date of order, order_no, product, quantity..
+                var customer_name = $(this).parent().prev().prev().prev().prev().prev().prev().text();
+                var date = $(this).parent().prev().prev().prev().prev().prev().text();
+                var order_id = $(this).parent().prev().prev().prev().prev().text();
+
+                //markup for adding rows to table
+
+
+
+                //send to backend..
+                $.ajax
+                ({
+                    type:"POST",
+                    url: "/print_order",
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify({customer_name:customer_name, date:date, order_id:order_id}),
+                    success: function (data) {
+
+                        //remove rows from table first
+                        $("#product_description tr").remove();
+
+
+                        for (var i=0; i < data.items.length;i++)
+
+                        {
+
+                           var markup = "<tr><td  id='product_name"+i+"'></td><td id='quantity"+ i+"'></td></tr>";
+
+
+
+
+                            console.log(data.items[i][0]); //product_name
+                            console.log(data.items[i][1]); //quantity
+
+                            $("#product_description").append(markup);
+
+                            $("#product_name"+i).text(data.items[i][0]);
+                            $("#quantity"+i).text(data.items[i][1]);
+
+
+
+                        }
+
+
+                         //update name, date, order_id
+                        $("#name").text(customer_name);
+                        $("#date").text(date);
+                        $("#order_no").text(order_id);
+
+
+                        //update address and phone number..
+                        $("#address").text(data.address);
+                        $("#phone_no").text(data.phone_no);
+
+
+
+                        //create pop up window..
+                        var thePopup = window.open( '', "Invoice", "menubar=0,location=0,height=700,width=700" );
+
+                        if (thePopup)
+                            {
+                                $(thePopup.document).ready(function(){
+                                    thePopup.document.write('<html><head><title>Dee ts Nigeria</title> <link rel="stylesheet" href="{{url_for('static', filename='css/style.css')}}"></head><body>');
+                                    thePopup.document.write($("#print-content-body").html());
+                                    $("#print-content-body", thePopup.document).css('display', 'block');
+                                    thePopup.document.write('</body></html>');
+                                    //thePopup.print();
+
+
+                                });
+
+                            }
+
+                    },
+                });
+
+             });
+
+        });
+
+</script>
+
+
+
+{% endblock script %}
+
+
+
+{% block content %}
+
+<div id="load"> </div>
+
+<table id="view_order_tables" class="table table-hover" style="margin-top: 1.5em;">
+      <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center"> Customer Name</th>
+            <th scope="col" class="text-center"> Date</th>
+            <th scope="col" class="text-center"> Order No</th>
+            <th scope="col" class="text-center">Paid status </th>
+            <th scope="col" class="text-center"> Total Amount (Naira)</th>
+            <th scope="col" class="text-center"> Edit</th>
+            <th scope="col" class="text-center"> Print</th>
+
+
+        </tr>
+      </thead>
+      <tbody>
+
+
+        {% for customer in data %}
+
+        <tr >
+            <td align="center"> {{customer.0}} </td>
+            <td align="center"> {{customer.1}} </td>
+            <td align="center"> <a class="orderNo" href="{{url_for('order_details')}}"> {{customer.2}} </a></td>
+            <td align="center"><span class="badge badge-pill badge-danger" id="paid_status_{{loop.index}}">{{customer.3}}</span></td>
+            <td align="center">{{customer.4}}</td>
+            <td align="center"><button class="btn btn-default update" data-toggle="modal" data-target="#update"><em class="fas fa-edit"></em></button></td>
+            <td align="center"><button class="btn btn-default print"><em class="fa fa-print"></em></button></td>
+
+        </tr>
+
+        {% endfor %}
+      </tbody>
+
+</table>
+
+
+<!--form to edit paid-status --------------->
+
+ <!-- Modal -->
+<div class="modal fade" id="update" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Paid Status</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <form id="payment_status" method="POST" action="{{url_for('edit_paymentStatus')}}">
+              <div class="form-group">
+                <label for="pay_status">Order status</label>
+                 <select class="form-control" id="pay_status" name="payment_status">
+                            <option>Paid</option>
+                            <option>Not Paid</option>
+
+                </select>
+                  <input type="text" id="order_code" name="order_code" hidden>
+              </div>
+              <button type="submit" class="btn btn-primary">Save changes</button>
+              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--print items-->
+
+<div id="print-content-body" hidden>
+    <div class="container">
+        <div class="inv-title">
+            <h1 class="no-margin">DEE TS NIGERIA LIMITED</h1>
+            <h2 class="no-margin">WAY BILL</h2>
+
+
+        </div>
+        <div class="inv-header">
+            <div>
+                <h2>Company Details</h2>
+                <ul>
+                    <li><b>ADDRESS:</b> BLOCK A PLOT 1 GATEWAY INDUSTRIAL <br/> ESTATE KM 12 IBAFO LAGOS-IBADAN EXPRESSWAY LAGOS <br/> NIGERIA</li>
+                    <li><b>TEL:</b> +238060780707</li>
+                    <li><b>EMAIL:</b> DEETSNIGERIA@HOTMAIL.COM</li>
+                </ul>
+
+                <h2>Client Information</h2>
+                <ul>
+                    <li><b>Name:</b><div id="name" style="display: inline-block"> </div></li>
+                    <li><b>Address:</b><div id="address" style="display: inline-block"></div></li>
+                    <li><b>Phone no: </b><div id="phone_no" style="display: inline-block"> </div></li>
+                </ul>
+            </div>
+            <div>
+                <table>
+                    <tr>
+                        <th>Order Date</th>
+                        <td id="date"></td>
+                    </tr>
+                    <tr>
+                        <th>Order No</th>
+                        <td id="order_no"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="inv-body">
+            <table>
+                <thead>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                </thead>
+                <tbody id="product_description">
+                </tbody>
+            </table>
+        </div>
+        <footer>
+            <h2>Signature</h2>
+            <p>.........................................</p>
+        </footer>
+
+    </div>
+
+
+</div>
+
+
+
+
+
+
+{% endblock content %}

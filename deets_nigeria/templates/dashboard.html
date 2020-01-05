@@ -1,0 +1,57 @@
+{% extends "index.html" %}
+
+{% block content %}
+
+<div class="row">
+
+        <div class="col-xl-3 col-sm-6 mb-3">
+            <div class="card text-white bg-primary o-hidden h-100">
+                <div class="card-body">
+
+                    <div> Product Quantity</div>
+                </div>
+
+                <a class="card-footer text-white small" href="{{url_for('product_quantity')}}">
+                    <span class="float-left"> View Details</span>
+                    <span class="float-right">
+                        <i class="fa fa-angle-right"></i>
+
+                    </span>
+
+                </a>
+
+
+
+            </div>
+        </div>
+
+
+        <div class="col-xl-3 col-sm-6 mb-3" >
+             <div class="card text-white bg-warning o-hidden h-100">
+                 <div class="card-body">
+                     <div> Manage Orders</div>
+
+                 </div>
+                 <a class="card-footer text-white small" href="{{url_for('view_order')}}">
+                    <span class="float-left"> View Details</span>
+                    <span class="float-right">
+                        <i class="fa fa-angle-right"></i>
+
+                    </span>
+
+                </a>
+             </div>
+
+
+
+        </div>
+
+
+
+</div>
+
+
+
+
+{% endblock %}
+

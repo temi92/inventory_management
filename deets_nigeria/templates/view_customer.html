@@ -1,0 +1,29 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block content %}
+
+<table id="customer_tables"class="table table-hover" style="margin-top: 1.5em;">
+      <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center"> Customer Name</th>
+            <th scope="col" class="text-center">Address </th>
+            <th scope="col" class="text-center"> Phone Number </th>
+        </tr>
+      </thead>
+      <tbody>
+
+        {% for customer in customers%}
+        <tr>
+            <td align="center"> {{customer.name}} </td>
+            <td align="center">{{customer.address}}</td>
+            <td align="center">{{customer.phone_number}}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+
+</table>
+
+
+{% endblock content %}

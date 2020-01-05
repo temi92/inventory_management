@@ -1,0 +1,64 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block content %}
+
+<div class="container">
+   <div class="row">
+       <div class="col-xl-3 col-sm-6 mb-3">
+           <a class="card text-white bg-primary o-hidden h-80" href="{{url_for('register_product')}}">
+               <div class="card-body">
+                    Register Inventory
+               </div>
+
+
+
+           </a>
+       </div>
+
+       <div class="col-xl-3 col-sm-6 mb-3">
+
+           <a class="card text-white bg-warning o-hidden h-80" href="{{url_for('update_product')}}">
+
+               <div class="card-body">
+                   Update Inventory
+
+               </div>
+
+           </a>
+       </div>
+
+
+       <div class="col-xl-3 col-sm-6 mb-3">
+           <a class= "card text-white bg-success o-hidden h-80" href="{{url_for('view_product')}}">
+
+               <div class="card-body">
+                   View Inventory
+               </div>
+
+           </a>
+       </div>
+
+       <div class="col-xl-3 col-sm-6 mb-3">
+           <a class="card text-white bg-danger o-hidden h-80"  href="{{url_for('delete_product')}}">
+               <div class="card-body ">
+                        Delete Inventory
+
+               </div>
+
+           </a>
+       </div>
+
+
+
+
+
+
+
+
+   </div>
+
+</div>
+
+{% endblock %}
