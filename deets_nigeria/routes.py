@@ -127,6 +127,29 @@ def register_customer():
         return redirect(url_for("register_customer"))
     return render_template("register_customer.html", form=form)
 
+@app.route("/grab_customer_info", methods=["GET", "POST"])
+def grab_customer_info():
+
+    customers = Customer.query.all()
+    if request.method == "POST":
+        customer_name = request.form["customer_name"]
+        customer_info = Customer.query.filter_by(name=customer_name).first()
+        address = customer_info.address
+        phone_number = customer_info.phone_number
+        return jsonify({"address":address, "phone_number":phone_number})
+    return render_template("edit_customer.html",customers=customers )
+
+@app.route("/edit_customer", methods=["POST"])
+def edit_customer():
+    #grab customer ...
+    customer_name = request.form["customerName"]
+    customer = Customer.query.filter_by(name=customer_name).first()
+    customer.address = request.form["address"]
+    customer.phone_number = request.form["phone_no"]
+    customer.save_to_db()
+    flash ("Succcesfully updated {} details".format(customer_name), "success")
+    return redirect(url_for("grab_customer_info"))
+
 
 
 #TODO FIX ME... use set data structure
