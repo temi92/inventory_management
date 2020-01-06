@@ -241,41 +241,29 @@ def view_order():
     return render_template("view_order.html", data=data)
 
 #TODO FIX THIS..
-@app.route("/get_order_item", methods=["GET", "POST"])
+@app.route("/get_order_item", methods=["POST"])
 def get_order_item():
     #global items
     items = None
-
     if request.method == "POST":
         order_id = request.json["order_id"]
         items = OrderItem.query.filter_by(order_id=order_id).all()
-        print ("get_order_item {}".format(items))
 
         product_names = [Product.query.filter_by(id=item.product_id).first().product_name for item in items]
         quantity = [item.quantity for item in items]
         rate = [item.rate for item in items]
         amount = [item.amount for item in items]
-        print(product_names, quantity, rate, amount)
         items = list(zip(product_names, quantity, rate, amount))
 
-    #return ""
-
-    return render_template("order_details.html", items=items)
+        return jsonify({"items":items})
 
 
-@app.route("/order_details", methods=["GET", "POST"])
-def order_details():
-    global items
-    #TODO Get product product names..
-    print ("order details item. {}".format(items) )
 
-    if items is not None:
-        product_names = [Product.query.filter_by(id=item.product_id).first().product_name for item in items]
-        quantity = [item.quantity for item in items]
-        rate = [item.rate for item in items]
-        amount = [item.amount for item in items]
-        print (product_names, quantity, rate, amount)
-        items = list(zip(product_names, quantity, rate, amount))
+@app.route("/order_details", defaults={"items":""})
+@app.route("/order_details/<items>", methods=["GET"])
+def order_details(items):
+    items = items.split(",")
+    items = [items[i:i+4] for i in range(0, len(items), 4)]
     return render_template("order_details.html", items=items)
 
 

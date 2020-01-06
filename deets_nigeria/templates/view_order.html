@@ -38,11 +38,15 @@
                 $.ajax
                 ({
                     type:"POST",
-                    url: "/get_order_item",
+                    url: "{{url_for('get_order_item')}}",
                     contentType: "application/json; charset=utf-8",
                     data: JSON.stringify({order_id:order_id}),
                     success: function (data) {
 
+                        // when 2 orders are placed data.items can accomodate 2 arrays each array 4 items.
+                        window.location.href = "/order_details/" + data.items;
+
+                        //window.location.href = "{{url_for('order_details')}}";
                     },
                 });
 
@@ -175,7 +179,7 @@
         <tr >
             <td align="center"> {{customer.0}} </td>
             <td align="center"> {{customer.1}} </td>
-            <td align="center"> <a class="orderNo" href="{{url_for('get_order_item')}}"> {{customer.2}} </a></td>
+            <td align="center"> <a class="orderNo" href="#"> {{customer.2}} </a></td>
             <td align="center"><span class="badge badge-pill badge-danger" id="paid_status_{{loop.index}}">{{customer.3}}</span></td>
             <td align="center">{{customer.4}}</td>
             <td align="center"><button class="btn btn-default update" data-toggle="modal" data-target="#update"><em class="fas fa-edit"></em></button></td>
