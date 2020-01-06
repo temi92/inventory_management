@@ -254,9 +254,8 @@ def get_order_item():
 def order_details():
     global items
     #TODO Get product product names..
-    print ("order details.......")
+    print ("order details item. {}".format(items) )
 
-    print (items)
     if items is not None:
         product_names = [Product.query.filter_by(id=item.product_id).first().product_name for item in items]
         quantity = [item.quantity for item in items]
