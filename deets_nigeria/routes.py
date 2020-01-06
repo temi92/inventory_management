@@ -241,12 +241,14 @@ def view_order():
     return render_template("view_order.html", data=data)
 
 #TODO FIX THIS..
-@app.route("/get_order_item", methods=["POST"])
+@app.route("/get_order_item", methods=["GET", "POST"])
 def get_order_item():
     global items
     if request.method == "POST":
         order_id = request.json["order_id"]
         items = OrderItem.query.filter_by(order_id=order_id).all()
+        print ("get_order_item {}".format(items))
+
     return ""
 
 
