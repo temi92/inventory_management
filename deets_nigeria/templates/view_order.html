@@ -175,7 +175,7 @@
         <tr >
             <td align="center"> {{customer.0}} </td>
             <td align="center"> {{customer.1}} </td>
-            <td align="center"> <a class="orderNo" href="{{url_for('order_details')}}"> {{customer.2}} </a></td>
+            <td align="center"> <a class="orderNo" href="{{url_for('get_order_item')}}"> {{customer.2}} </a></td>
             <td align="center"><span class="badge badge-pill badge-danger" id="paid_status_{{loop.index}}">{{customer.3}}</span></td>
             <td align="center">{{customer.4}}</td>
             <td align="center"><button class="btn btn-default update" data-toggle="modal" data-target="#update"><em class="fas fa-edit"></em></button></td>

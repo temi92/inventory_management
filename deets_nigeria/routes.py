@@ -9,7 +9,7 @@ import random
 import string
 
 
-items = None
+#items = None
 
 #load json file that contains credentials..
 with open('deets_nigeria/credentials.json') as f:
@@ -243,13 +243,24 @@ def view_order():
 #TODO FIX THIS..
 @app.route("/get_order_item", methods=["GET", "POST"])
 def get_order_item():
-    global items
+    #global items
+    items = None
+
     if request.method == "POST":
         order_id = request.json["order_id"]
         items = OrderItem.query.filter_by(order_id=order_id).all()
         print ("get_order_item {}".format(items))
 
-    return ""
+        product_names = [Product.query.filter_by(id=item.product_id).first().product_name for item in items]
+        quantity = [item.quantity for item in items]
+        rate = [item.rate for item in items]
+        amount = [item.amount for item in items]
+        print(product_names, quantity, rate, amount)
+        items = list(zip(product_names, quantity, rate, amount))
+
+    #return ""
+
+    return render_template("order_details.html", items=items)
 
 
 @app.route("/order_details", methods=["GET", "POST"])
