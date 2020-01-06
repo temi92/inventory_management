@@ -262,8 +262,8 @@ def order_details():
         rate = [item.rate for item in items]
         amount = [item.amount for item in items]
         print (product_names, quantity, rate, amount)
-        items = list(zip(product_names, quantity, rate, amount))
-    return render_template("order_details.html", items=items)
+        data = list(zip(product_names, quantity, rate, amount))
+    return render_template("order_details.html", items=data)
 
 
 @app.route("/edit_payment_status", methods=["POST", "GET"])
