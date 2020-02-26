@@ -120,6 +120,21 @@
 
 
 
+
+      <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="pagesDropdown_account" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <i class="far fa-money-bill-alt"></i>
+              <span>Account</span>
+            </a>
+            <div class="dropdown-menu" aria-labelledby="pagesDropdown_account">
+              <a class="dropdown-item" href="{{url_for('add_payment')}}">Payment</a>
+              <a class="dropdown-item" href="{{url_for('pending_payments')}}">Pending Transactions</a>
+              <a class="dropdown-item" href="#">History</a>
+
+            </div>
+        </li>
+
+
     </ul>
 
     <div id="content-wrapper">

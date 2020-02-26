@@ -43,10 +43,17 @@
                     data: JSON.stringify({order_id:order_id}),
                     success: function (data) {
 
-                        // when 2 orders are placed data.items can accomodate 2 arrays each array 4 items.
-                        window.location.href = "/order_details/" + data.items;
 
-                        //window.location.href = "{{url_for('order_details')}}";
+                        if (data.items)
+                        {
+                          // when 2 orders are placed data.items can accomodate 2 arrays each array 4 items.
+                          window.location.href = "/order_details/" + data.items;
+
+                        }
+
+
+
+
                     },
                 });
 
@@ -66,9 +73,9 @@
             {
 
                 //grab customer name, address, date of order, order_no, product, quantity..
-                var customer_name = $(this).parent().prev().prev().prev().prev().prev().prev().text();
-                var date = $(this).parent().prev().prev().prev().prev().prev().text();
-                var order_id = $(this).parent().prev().prev().prev().prev().text();
+                var customer_name = $(this).parent().prev().prev().prev().prev().prev().text();
+                var date = $(this).parent().prev().prev().prev().prev().text();
+                var order_id = $(this).parent().prev().prev().prev().text();
 
                 //markup for adding rows to table
 
@@ -165,7 +172,6 @@
             <th scope="col" class="text-center"> Order No</th>
             <th scope="col" class="text-center">Paid status </th>
             <th scope="col" class="text-center"> Total Amount (Naira)</th>
-            <th scope="col" class="text-center"> Edit</th>
             <th scope="col" class="text-center"> Print</th>
 
 
@@ -182,7 +188,6 @@
             <td align="center"> <a class="orderNo" href="#"> {{customer.2}} </a></td>
             <td align="center"><span class="badge badge-pill badge-danger" id="paid_status_{{loop.index}}">{{customer.3}}</span></td>
             <td align="center">{{customer.4}}</td>
-            <td align="center"><button class="btn btn-default update" data-toggle="modal" data-target="#update"><em class="fas fa-edit"></em></button></td>
             <td align="center"><button class="btn btn-default print"><em class="fa fa-print"></em></button></td>
 
         </tr>
@@ -193,36 +198,6 @@
 </table>
 
 
-<!--form to edit paid-status --------------->
-
- <!-- Modal -->
-<div class="modal fade" id="update" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Paid Status</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-          <form id="payment_status" method="POST" action="{{url_for('edit_paymentStatus')}}">
-              <div class="form-group">
-                <label for="pay_status">Order status</label>
-                 <select class="form-control" id="pay_status" name="payment_status">
-                            <option>Paid</option>
-                            <option>Not Paid</option>
-
-                </select>
-                  <input type="text" id="order_code" name="order_code" hidden>
-              </div>
-              <button type="submit" class="btn btn-primary">Save changes</button>
-              <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          </form>
-      </div>
-    </div>
-  </div>
-</div>
 
 
 <!--print items-->

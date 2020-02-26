@@ -1,0 +1,71 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block script %}
+{{ super() }}
+<script>
+    $(document).ready(function(){
+
+
+
+        $("#button").on("click",function()
+        {
+            window.location.href = "/pending_payments";
+
+
+
+         });
+
+
+    });
+
+
+
+</script>
+{% endblock script%}
+
+
+
+{% block content %}
+
+
+<fieldset>
+    <legend class="border-bottom mb-4"> View Pending Payments </legend>
+
+
+    <div class="col-md-6">
+        <label for="amount_paid">Owing</label>
+        <input type="number" class="form-control" id="amount_toPay"  value = "{{amountLeftoPay }}" name="amount_toPay" min="0" readonly>
+
+    </div>
+
+
+    <div class="col-md-6">
+        <label for="amount_paid">Paid</label>
+        <input type="number" class="form-control" id="amount_paid"  value = "{{amountPaid}}" name="amount_paid" min="0" readonly>
+    </div>
+
+
+
+
+    <div class="col-md-6">
+        <label for="total_amount">Total Amount</label>
+        <input type="number" class="form-control" id="total_amount" value = "{{totalAmount}}" name="total_amount" readonly>
+    </div>
+
+
+
+</fieldset>
+
+<div class="col-md-6">
+    <button type="submit" class="btn btn-primary" id="button" style="margin-top: 10px;">Go back </button>
+</div>
+
+
+
+
+
+
+
+{% endblock content %}

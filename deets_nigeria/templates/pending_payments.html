@@ -1,0 +1,128 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block script %}
+{{ super() }}
+<script>
+    $(document).ready(function(){
+
+
+        var total_amounts = [];
+
+        $("#customerName").on("click",function()
+        {
+             var customer_name = $(this).children("option:selected").val();
+
+
+
+            $.ajax
+            ({
+                type:"POST",
+                url: "/pending_payments_data",
+                data: {customer_name:customer_name},
+                success:function(data){
+
+                    total_amounts = data.total_amount;
+
+                    var $el = $("#order_no");
+                    $el.empty(); // remove old
+
+                    //update select field..
+                    $.each(data.order_ids, function(index, element) {
+                            $el.append($("<option></option>").attr("value", element).text(element));
+                            //display first element first..
+                            $("#total_amount").val(data.total_amount[0]);
+
+
+                    });
+
+
+
+                },
+
+
+            });
+
+
+
+
+         });
+
+        $(document).on("change", "#order_no" , function()
+            {
+
+
+                var index = $("#order_no option:selected").index();
+                $("#total_amount").val(total_amounts[index]);
+
+
+
+             });
+
+
+
+
+
+
+    });
+
+
+
+</script>
+{% endblock script%}
+
+
+{% block content %}
+
+<form id="payment_status" method="POST" action="/customer_paymentStatus">
+        <fieldset>
+            <legend class="border-bottom mb-4"> View Pending Payments </legend>
+
+            <div class="form-group row" >
+                <div class="col-md-6">
+                    <label for="customerName">Customer Name</label>
+                    <select class="form-control" id="customerName" name="customerName">
+                                {% for name in customers %}
+                                    <option>{{name}}</option>
+                                {% endfor %}
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group row" >
+                <div class="col-md-6">
+                    <label for="order_no">Order No</label>
+                    <select class="form-control" id="order_no" name="no_order" selected="selected">
+
+                    </select>
+
+                </div>
+
+            </div>
+
+
+
+
+            <div class="form-group row">
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary" id="button">Submit</button>
+                </div>
+
+            </div>
+
+
+
+
+
+        </fieldset>
+
+
+    </form>
+
+
+
+{% endblock content %}

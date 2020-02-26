@@ -1,7 +1,8 @@
 from flask import render_template, flash, redirect,url_for, request,jsonify
 from deets_nigeria.forms import WarehouseForm, CustomerForm, UpdateProductForm, LoginForm
 from deets_nigeria import app,db
-from deets_nigeria.models import Product, Customer, ProductInfo, Order, OrderItem
+from deets_nigeria.models import Product, Customer, ProductInfo, Orders, OrderItem, Payment
+from deets_nigeria.utils import getOrderData, customerNamesforOrders
 import json
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
@@ -52,7 +53,7 @@ def add_order():
 
         #grab form data.
         customer_name = request.form["customerName"]
-        payment_status = request.form["payment_status"]
+        #payment_status = request.form["payment_status"]
         counters = int(request.form["counters"])
         names = [request.form["choice" + str(i)] for i in range(counters)]
         quantity = [request.form["quantity" + str(i)] for i in range(counters)]
@@ -67,9 +68,11 @@ def add_order():
         # generate unqiue order code ..
         order_id = ''.join(random.choice(string.digits) for _ in range(5))
         # create a new order...
-        ord = Order(date, order_id, payment_status, total_amount)
+        #ord = Orders(date, order_id, payment_status, total_amount)
+        ord = Orders(date, order_id, total_amount)
 
 
+        #update stock in warehouse...
 
         for i in range(len(order_details)):
             product = Product.query.filter_by(product_name=order_details[i][0]).first()
@@ -247,19 +250,20 @@ def product_quantity():
 @app.route("/view_order", methods=["GET"])
 def view_order():
     #get customers who have placed orders..
-    orders = Order.query.all()
+    orders = Orders.query.all()
 
 
-    customers = set([order.customer_id for order in orders])
+    #customers = set([order.customer_id for order in orders])
     customer_names = [Customer.query.filter_by(id=order.customer_id).first().name for order in orders]
 
 
     date = [order.date.date() for order in orders]
     order_no = [order.order_id for order in orders]
-    paid_status = [order.paid_status for order in orders]
+    #paid_status = [order.paid_status for order in orders]
+    paid_status = ["Paid" if order.paid_status == True else "Not paid" for order in orders ]
     totalAmount = [order.total_amount for order in orders]
 
-    data = list(zip(customer_names, date, order_no, paid_status, totalAmount))
+    data = list(zip(customer_names, date,order_no, paid_status, totalAmount))
 
     return render_template("view_order.html", data=data)
 
@@ -270,14 +274,16 @@ def get_order_item():
     items = None
     if request.method == "POST":
         order_id = request.json["order_id"]
-        items = OrderItem.query.filter_by(order_id=order_id).all()
+        items = OrderItem.query.filter_by(order_id=order_id.strip()).all()
+        #check if items is list is empty
+        if not items:
+            return jsonify({"items": ""})
 
         product_names = [Product.query.filter_by(id=item.product_id).first().product_name for item in items]
         quantity = [item.quantity for item in items]
         rate = [item.rate for item in items]
         amount = [item.amount for item in items]
         items = list(zip(product_names, quantity, rate, amount))
-
         return jsonify({"items":items})
 
 
@@ -285,9 +291,64 @@ def get_order_item():
 @app.route("/order_details", defaults={"items":""})
 @app.route("/order_details/<items>", methods=["GET"])
 def order_details(items):
+
     items = items.split(",")
     items = [items[i:i+4] for i in range(0, len(items), 4)]
+    print (items)
     return render_template("order_details.html", items=items)
+
+
+
+@app.route("/get_order_numbers", methods=["POST"])
+def get_order_numbers():
+    # get customers who have placed orders..
+    name = request.form["customer_name"]
+    #grab orders customer has placed..
+    order_ids, total_amount = getOrderData(name, filter=True)
+    return jsonify({"order_ids":order_ids, "total_amount":total_amount})
+
+
+
+@app.route("/add_payment", methods=["POST", "GET"])
+def add_payment():
+    customer_names = customerNamesforOrders(filter=True)
+    if request.method == "POST":
+        customer_name = request.form["customerName"]
+
+        order_no = request.form["no_order"]
+        bank_name = request.form["bank_name"]
+        date = request.form["date"]
+        amount_paid = request.form["amount_paid"]
+
+        total_amount = request.form["total_amount"]
+
+        # convert to date object.
+        date = datetime.strptime(date, '%m/%d/%Y')
+        order = Orders.query.filter_by(order_id=order_no).first()
+
+        if float(amount_paid) > float(total_amount):
+            flash(" Try Again! Amount paid is greater than amount customer owes", "danger")
+            return redirect(url_for("add_payment"))
+
+        elif float(amount_paid) == float(total_amount):
+            order.paid_status = True
+            order.save_to_db()
+        else:
+            pass
+
+
+        payment = Payment(date, bank_name, amount_paid)
+        #retrieve customer..
+        customer = Customer.query.filter_by(name=customer_name).first()
+        #retrieve order..
+        payment.customer = customer
+        payment.order = order
+        payment.save_to_db()
+
+        flash("Successfully added payment", "success")
+
+    return render_template("add_payment.html", customers = customer_names)
+
 
 
 @app.route("/edit_payment_status", methods=["POST", "GET"])
@@ -300,11 +361,66 @@ def edit_paymentStatus():
         order_code = order_code.strip()
 
         #change paid status
-        order = Order.query.filter_by(order_id=order_code).first()
+        order = Orders.query.filter_by(order_id=order_code).first()
         order.paid_status = payment_status
         order.save_to_db()
     return redirect(url_for("view_order"))
 
+
+@app.route("/pending_payments", methods=["POST", "GET"])
+def pending_payments():
+    customer_names = customerNamesforOrders(filter=True)
+    return render_template("pending_payments.html", customers=customer_names)
+
+
+@app.route("/customer_paymentStatus", methods=["GET", "POST"])
+def customer_paymentStatus():
+    amountLeftoPay = 0
+    amountPaid = 0
+
+    if request.method == "POST":
+
+        try:
+            order_no = request.form["no_order"]
+            customer = request.form["customerName"]
+            print(customer)
+            # get total amount from order database.
+            order = Orders.query.filter_by(order_id=order_no).first()
+            totalAmount = order.total_amount
+
+            #get customer from database.
+            customer = Customer.query.filter_by(name=customer).first()
+
+            payment = Payment.query.filter_by(order_id=order_no).first()
+            #check if payment has order info in it.
+            #first time customer has generated the order and no payment has been made to the payment database..
+            if payment is None:
+                amountLeftoPay = totalAmount
+            else:
+
+                p = Payment.query.filter_by(customer_id=customer.id).filter_by(order_id= order.order_id).all()
+                amountPaid = sum([i.amount_paid for i in p])
+                amountLeftoPay = totalAmount - amountPaid
+
+
+
+
+
+        except Exception as e:
+            print (e)
+            flash ("Order number not selected", "danger")
+            return redirect(url_for("pending_payments"))
+    return render_template("customer_paymentStatus.html", amountLeftoPay=amountLeftoPay, amountPaid=amountPaid, totalAmount=totalAmount)
+
+@app.route("/pending_payments_data", methods=["POST"])
+def pending_payments_data():
+    """
+    used to update html pending_payments. page via ajax call
+    """
+    name = request.form["customer_name"]
+    # grab orders that customer has not paid complete..
+    order_no, total_amount = getOrderData(name,filter=True)
+    return jsonify({"order_ids": order_no, "total_amount": total_amount})
 
 
 @app.route("/print_order", methods=["POST"])
@@ -335,6 +451,9 @@ def manage_customer():
     #get all customers..
     customers = Customer.query.all()
     return render_template("view_customer.html", customers=customers)
+
+
+
 
 
 
