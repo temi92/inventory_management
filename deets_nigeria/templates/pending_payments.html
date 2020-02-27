@@ -18,7 +18,7 @@
             $.ajax
             ({
                 type:"POST",
-                url: "/pending_payments_data",
+                url: "/pending_payments",
                 data: {customer_name:customer_name},
                 success:function(data){
 
@@ -82,6 +82,8 @@
                 <div class="col-md-6">
                     <label for="customerName">Customer Name</label>
                     <select class="form-control" id="customerName" name="customerName">
+                        <option value="" selected disabled hidden>Please Select customer</option>
+
                                 {% for name in customers %}
                                     <option>{{name}}</option>
                                 {% endfor %}

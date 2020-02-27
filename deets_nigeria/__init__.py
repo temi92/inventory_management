@@ -16,6 +16,7 @@ app.config["SQLALCHEMY_DATABASE_URI"] = "postgres+psycopg2://postgres:folajoke92
 #app.config["SQLALCHEMY_DATABASE_URI"] = "postgres://qvaacilwhlandq:29fa1dea878d34b8cd47bc251b0822834da0addb464b55b509d5dbe18dd53462@ec2-174-129-33-147.compute-1.amazonaws.com:5432/dfc99jep0jm4ta"
 app.config[" SQLALCHEMY_TRACK_MODIFICATIONS "] = False
 db = SQLAlchemy(app)
+
 Bootstrap(app)
 migrate = Migrate(app,db)
 

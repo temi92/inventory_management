@@ -230,6 +230,8 @@
             <div class="col-md-6">
                 <label for="customerName">Customer Name</label>
                 <select class="form-control" id="customerName" name="customerName">
+                    <option value="" selected disabled hidden>Please Select customer</option>
+
                             {% for customer in customers %}
                                 <option>{{customer.name}}</option>
                             {% endfor %}

@@ -1,0 +1,39 @@
+{% extends "index.html" %}
+
+
+{% block content %}
+
+
+<div> <h4> Cost of Order:<span> {{order_cost}}</span> </h4></div>
+<div id="load"> </div>
+
+<table id="view_order_tables" class="table table-hover" style="margin-top: 1.5em;">
+      <thead class="thead-dark">
+        <tr>
+            <th scope="col" class="text-center"> Date</th>
+            <th scope="col" class="text-center">Bank name </th>
+            <th scope="col" class="text-center"> Amount Paid (Naira) </th>
+
+
+        </tr>
+      </thead>
+      <tbody>
+
+
+        {% for d in data %}
+
+        <tr >
+            <td align="center"> {{d.0}} </td>
+            <td align="center"> {{d.1}} </td>
+            <td align="center">{{d.2}}</td>
+
+        </tr>
+
+        {% endfor %}
+      </tbody>
+
+</table>
+
+
+
+{% endblock content %}
