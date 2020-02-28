@@ -349,7 +349,7 @@ def get_order_numbers():
     # get customers who have placed orders..
     name = request.form["customer_name"]
     #grab orders customer has placed..
-    order_ids, total_amount = getOrderData(name, filter=True)
+    order_ids, total_amount = getOrderData(name, filter=False)
     return jsonify({"order_ids":order_ids, "total_amount":total_amount})
 
 
@@ -372,15 +372,29 @@ def add_payment():
             date = datetime.strptime(date, '%m/%d/%Y')
             order = Orders.query.filter_by(order_id=order_no).first()
 
-            if float(amount_paid) > float(total_amount):
-                flash(" Try Again! Amount paid is greater than amount customer owes", "danger")
-                return redirect(url_for("add_payment"))
-
-            elif float(amount_paid) == float(total_amount):
-                order.paid_status = True
-                order.save_to_db()
+            #get from Payment data base info.
+            payment = Payment.query.filter_by(order_id=order_no).all()
+            if payment:
+                amount_paidsoFar = sum([p.amount_paid for p in payment])
+                if (float(amount_paid)+ float(amount_paidsoFar)) > float(total_amount):
+                    flash(" Try Again! Amount paid is greater than amount customer owes", "danger")
+                    return redirect(url_for("add_payment"))
+                elif (float(amount_paid)+ float(amount_paidsoFar)) == float(total_amount):
+                    order.paid_status = True
+                    order.save_to_db()
+                else:
+                    pass
             else:
-                pass
+                #check if amount paid is greater than total_amount
+                if (float(amount_paid) > float(total_amount)):
+                    flash(" Try Again! Amount paid is greater than amount customer owes", "danger")
+                    return redirect(url_for("add_payment"))
+                elif (float(amount_paid) == float(total_amount)):
+                    order.paid_status = True
+                    order.save_to_db()
+                else:
+                    pass
+
 
 
             payment = Payment(date, bank_name, amount_paid)
