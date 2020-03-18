@@ -2,6 +2,63 @@
 {% import "bootstrap/wtf.html" as wtf %}
 
 
+
+
+{% block script %}
+{{ super() }}
+
+
+<script>
+    $(document).ready(function(){
+
+        var errorInForm = false;
+        $(".text-danger").hide();
+
+        $("#Date").datepicker({onSelect: function(dateText, inst)
+
+                {
+
+                   var selectedDate = $(this).datepicker("getDate");
+                   if (selectedDate > new Date())
+                   {
+
+                   $(".text-danger").show();
+
+
+                    errorInForm=true;
+
+                   }
+
+                   else
+                   {
+                    $(".text-danger").hide();
+                    errorInForm = false;
+
+                   }
+
+
+                }
+            });
+
+
+        $("form").on("submit", function(event){
+            if (errorInForm === true){
+                event.preventDefault();
+
+            }
+
+
+        });
+
+
+    });
+
+
+</script>
+
+
+{% endblock script %}
+
 {% block content %}
 
     <div class="container">
@@ -15,9 +72,26 @@
                         {% endfor %}
                     </select>
                 </div>
+
+
+
                 <div class="form-group">
-                    <div> {{wtf.quick_form(form) }}</div>
+                    <label for="Date">Date</label>
+                    <input type="text" class="form-control" id="Date" placeholder="Date" name="date" required>
+                    <span class="text-danger">Invalid date entry </span>
+
                 </div>
+
+
+
+
+                <div class="form-group">
+                    <label for="quantity">Quantity</label>
+                    <input type="number" id="quantity" name="quantity" class="form-control quantity"  min="0" value="0" required/>
+                </div>
+
+
+
                 <div class="form-group"> <input type="submit" class="btn btn-primary" value="Update"/>
 
                 </div>

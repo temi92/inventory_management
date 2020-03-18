@@ -1,4 +1,5 @@
 from deets_nigeria.models import Customer,Orders
+from datetime import timedelta, date
 
 def getOrderData(customer_name, filter=False):
     """
@@ -34,3 +35,9 @@ def customerNamesforOrders(filter=False):
     customer_names = set([Customer.query.filter_by(id=customer).first().name for customer in customers])
 
     return customer_names
+
+
+def daterange(date1, date2):
+    for n in range(int((date2-date1).days)+1):
+        yield date1 + timedelta(n)
+

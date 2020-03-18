@@ -14,12 +14,36 @@
 
         // display datepicker ..
 
+        var errorInForm = false;
+        $(".text-danger").hide();
+
         $("#orderDate").datepicker({onSelect: function(dateText, inst)
 
             {
 
+               var selectedDate = $(this).datepicker("getDate");
+               if (selectedDate > new Date())
+               {
+
+               $(".text-danger").show();
+
+
+                errorInForm=true;
+
+               }
+
+               else
+               {
+                $(".text-danger").hide();
+                errorInForm = false;
+
+               }
+
+
             }
         });
+
+        //get dat
 
     var counter = 1;
 
@@ -147,31 +171,38 @@
             e.preventDefault(e);
 
 
-            $("#counter").val(counter);
-            //send counter variable to flask backend...
-            $.ajax
-            ({
-                type:"POST",
-                url: "/add_order",
-                data: $("#order_form").serialize(),
+            if (!errorInForm){
 
-                success:function(data)
-                {
-                    //check if sufficient quantity of product
-                    if (data.success===0) {
-                     $("#check_warehouse").show().delay(2000).fadeOut();
-                    }
-                    else if(data.success===1)
+
+                $("#counter").val(counter);
+                //send counter variable to flask backend...
+                $.ajax
+                ({
+                    type:"POST",
+                    url: "/add_order",
+                    data: $("#order_form").serialize(),
+
+                    success:function(data)
                     {
-                     $("#add_order").show().delay(2000).fadeOut();
+                        //check if sufficient quantity of product
+                        if (data.success===0) {
+                         $("#check_warehouse").show().delay(2000).fadeOut();
+                        }
+                        else if(data.success===1)
+                        {
+                         $("#add_order").show().delay(2000).fadeOut();
 
 
 
-                    }
+                        }
 
-                },
+                    },
 
-            });
+                });
+
+            }
+
+
 
        });
 
@@ -217,6 +248,7 @@
             <div class="col-md-6">
                 <label for="orderDate">Order Date</label>
                 <input type="text" class="form-control" id="orderDate" placeholder="Date of Order" name="date" required>
+                <span class="text-danger">Invalid date entry </span>
                 <!--this is hidden input to track the number of times user adds product -->
 
                 <input hidden type="number"  id="counter" name="counters" value =""/>

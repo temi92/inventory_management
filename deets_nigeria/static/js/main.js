@@ -7,12 +7,36 @@ $(document).ready(function () {
     $("#view_order_tables").DataTable();
 
 
-     // get date ...
-     //this is for manage_product_1.html...
+    var errorInForm = false;
 
-    $("#datepicker").datepicker({onSelect: function(dateText, inst) {
+    $("#start_date").hide();
+    $("#end_date").hide();
+
+
+
+     // get date ...
+
+    $("#start_datepicker").datepicker({onSelect: function(dateText, inst) {
+        // we need to send this date to back-end..
         // we need to send this date to back-end..
 
+         var selectedDate = $(this).datepicker("getDate");
+         if (selectedDate > new Date())
+          {
+
+               $("#start_date").show();
+                errorInForm=true;
+
+          }
+
+          else
+          {
+                $("#start_date").hide();
+                errorInForm = false;
+
+          }
+
+        /*
         $.ajax({
 
             type: "POST",
@@ -40,10 +64,50 @@ $(document).ready(function () {
             },
 
         });
+        */
 
     }
     });
 
+
+
+    $("#end_datepicker").datepicker({onSelect: function(dateText, inst) {
+
+        // we need to send this date to back-end..
+
+         var selectedDate = $(this).datepicker("getDate");
+         if (selectedDate > new Date())
+          {
+
+               $("#end_date").show();
+                errorInForm=true;
+
+          }
+
+          else
+          {
+                $("#end_date").hide();
+                errorInForm = false;
+
+          }
+
+
+    }
+    });
+
+
+    //intercept form from submitting if error flag is true.
+
+    $("#view_product").submit(function (e){
+        if (errorInForm){
+            e.preventDefault();
+
+        }
+
+
+
+
+    })
 
 
 

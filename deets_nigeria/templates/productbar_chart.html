@@ -1,0 +1,35 @@
+{% extends "index.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+
+{% block script %}
+{{ super() }}
+<script>
+    TESTER = document.getElementById('tester');
+    var data =
+    [
+    {
+    x: ['giraffes', 'orangutans', 'monkeys'],
+    y: [20, 14, 23],
+    type: 'bar'
+    }
+    ];
+
+
+
+	Plotly.newPlot( TESTER, data);
+
+</script>
+{% endblock script %}
+
+{% block content %}
+
+<div id="tester" >
+
+
+
+
+
+</div>
+
+{% endblock content %}

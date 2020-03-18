@@ -6,11 +6,33 @@
 <script>
     $(document).ready(function(){
 
-        // display datepicker ..
+        // display datepicker .
+
+          $(".text-danger").hide();
+
+           var errorInForm = false;
 
           $("#date").datepicker({onSelect: function(dateText, inst)
 
             {
+               var selectedDate = $(this).datepicker("getDate");
+               if (selectedDate > new Date())
+               {
+
+                $(".text-danger").show();
+
+
+                errorInForm=true;
+
+               }
+
+               else
+               {
+                $(".text-danger").hide();
+                errorInForm = false;
+
+               }
+
 
             }
         });
@@ -69,6 +91,19 @@
 
 
              });
+
+
+         $("#paymentForm").submit(function(e){
+
+            if (errorInForm) {
+
+                e.preventDefault();
+
+            }
+
+
+
+         });
 
 
 
@@ -135,6 +170,7 @@
                 <div class="col-md-6">
                     <label for="date">Date</label>
                     <input type="text" class="form-control" id="date" placeholder="Date" name="date" required>
+                    <span class="text-danger"> Invalid date entry</span>
 
                 </div>
 

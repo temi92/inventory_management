@@ -3,6 +3,7 @@ from wtforms import StringField, IntegerField, SubmitField, FloatField, Password
 from wtforms.validators import DataRequired, ValidationError, InputRequired
 from wtforms.fields.html5 import DateField
 from deets_nigeria.models import Product, Customer
+from datetime import date
 
 
 
@@ -15,6 +16,15 @@ def customer_exist(form, field):
     customer_name = Customer.query.filter_by(name=form.name.data.lower()).first()
     if customer_name:
         raise ValidationError("{} already registered".format(form.name.data))
+
+
+def check_date(form, field):
+    current_date = date.today() #yy-mm-dd
+    print (current_date)
+    if (form.date.data > current_date):
+        raise ValidationError("cannot pick future date")
+
+
 
 
 class LoginForm(FlaskForm):
@@ -36,8 +46,8 @@ class CustomerForm(FlaskForm):
     phone_number = StringField("Phone number", validators=[DataRequired()])
 
 class UpdateProductForm(FlaskForm):
-    date = DateField("Date",format="%Y-%m-%d", validators=[DataRequired()])
     product_quantity = IntegerField("Product Quantity", validators=[DataRequired()])
+    date = DateField("Date",format="%Y-%m-%d", validators=[DataRequired(), check_date])
 
 
 

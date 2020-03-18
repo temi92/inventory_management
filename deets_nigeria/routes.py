@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect,url_for, request,jsonify, ses
 from deets_nigeria.forms import WarehouseForm, CustomerForm, UpdateProductForm, LoginForm
 from deets_nigeria import app,db
 from deets_nigeria.models import Product, Customer, ProductInfo, Orders, OrderItem, Payment
-from deets_nigeria.utils import getOrderData, customerNamesforOrders
+from deets_nigeria.utils import getOrderData, customerNamesforOrders, daterange
 import json
 from sqlalchemy.exc import IntegrityError
 from datetime import datetime
@@ -194,9 +194,37 @@ def view_product():
         get_quantity = lambda x: ProductInfo.query.filter_by(id=x).first().quantity
         get_id = lambda x: x.id
 
+        products = Product.query.all()  # get all products registered.
+
+        product_names = list([p.product_name for p in products])
+
 
         if request.method == "POST":
 
+            #grab form data...
+            start_date = request.form["start_date"]
+            end_date = request.form["end_date"]
+            #convert to date time object
+            start_date = datetime.strptime(start_date, '%m/%d/%Y')
+            end_date = datetime.strptime(end_date, '%m/%d/%Y')
+
+
+            date_range = []
+            for dt in daterange(start_date, end_date):
+                date_range.append(dt.strftime('%m/%d/%Y'))
+
+            print (date_range)
+
+
+            product_name = request.form["selected_product"]
+
+            print(product_name)
+
+            return render_template("productbar_chart.html")
+
+
+
+            '''
             date = request.form["date"] #this is a str
             #convert to date object.
             date = datetime.strptime(date, '%m/%d/%Y')
@@ -216,7 +244,8 @@ def view_product():
                 v = map(get_id, v)
                 data[k] = sum(list(map(get_quantity, v)))
             return jsonify(data)
-        return render_template("view_product.html")
+            '''
+        return render_template("view_product.html",products=product_names)
     return render_template("login.html",form=g.login_form)
 
 
@@ -231,10 +260,14 @@ def update_product():
         products = Product.query.all() #get all products registered.
 
         product_names = list([p.product_name for p in products])
-        if form.validate_on_submit():
+        if request.method == "POST":
             product_name = request.form["selected_product"]
-            quantity = form.product_quantity.data
-            date = form.date.data
+
+
+            quantity = int(request.form["quantity"])
+            date = request.form["date"]
+            # convert to date object.
+            date = datetime.strptime(date, '%m/%d/%Y')
 
             product = Product.query.filter_by(product_name=product_name).first()
             #check if cell is NULL
@@ -251,7 +284,7 @@ def update_product():
             flash("{} : successfully added {} bags to warehouse ".format(product_name, quantity), "success")
             return redirect(url_for('update_product'))
 
-        return render_template("update_product.html", products=product_names, form=form)
+        return render_template("update_product.html", products=product_names)
     return render_template("login.html",form=g.login_form)
 
 
