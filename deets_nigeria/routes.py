@@ -209,18 +209,31 @@ def view_product():
             end_date = datetime.strptime(end_date, '%m/%d/%Y')
 
 
-            date_range = []
+            date_range = {}
             for dt in daterange(start_date, end_date):
-                date_range.append(dt.strftime('%m/%d/%Y'))
-
-            print (date_range)
+                date_range.update({dt.strftime('%Y-%m-%d'):0})
 
 
             product_name = request.form["selected_product"]
 
-            print(product_name)
+            id = Product.query.filter_by(product_name=product_name).first().id
+            #get all product_info data...
+            p = ProductInfo.query.filter_by(product_id=id).all()
 
-            return render_template("productbar_chart.html")
+
+
+            #consider not using nested for loop this could be quite slow with large data..
+            for i in p:
+                for key, value in date_range.items():
+                    #check date
+                    if i.date.date().strftime('%Y-%m-%d') == key:
+                        date_range[key] = i.quantity
+
+            print (date_range)
+
+            return render_template("productbar_chart.html", date_range=date_range)
+
+
 
 
 

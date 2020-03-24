@@ -6,11 +6,24 @@
 {{ super() }}
 <script>
     TESTER = document.getElementById('tester');
+    dates = [];
+    quantity = [];
+    var dict = JSON.parse('{{date_range | tojson}}');
+    console.log(dict);
+
+    for (var key in dict){
+
+        dates.push(key);
+        quantity.push(dict[key]);
+
+
+    }
+
     var data =
     [
     {
-    x: ['giraffes', 'orangutans', 'monkeys'],
-    y: [20, 14, 23],
+    x: dates,
+    y: quantity,
     type: 'bar'
     }
     ];
