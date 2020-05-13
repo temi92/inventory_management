@@ -76,6 +76,11 @@ def add_order():
             counters = int(request.form["counters"])
             names = [request.form["choice" + str(i)] for i in range(counters)]
             quantity = [request.form["quantity" + str(i)] for i in range(counters)]
+
+            if "0" in quantity:
+                #cannot have 0 quantity in orders..
+                return jsonify({"success": 2})
+
             rate = [request.form["rate" + str(i)] for i in range(counters)]
             amount = [request.form["amount" + str(i)] for i in range(counters)]
             total_amount = request.form["totalAmount"]
@@ -96,10 +101,10 @@ def add_order():
             for i in range(len(order_details)):
                 product = Product.query.filter_by(product_name=order_details[i][0]).first()
                 #check if product quantity is sufficient...
+
                 if int(order_details[i][1]) <= product.quantity: #TODO ..FIX THIS BUG..
                     product.quantity -= int(order_details[i][1])
                     product.save_to_db()
-
 
                     o = OrderItem(order_details[i][1], order_details[i][2], order_details[i][3])
                     o.order = ord
@@ -111,7 +116,6 @@ def add_order():
             #save order info to database..
             ord.customer = customer
             ord.save_to_db()
-
 
 
             return jsonify({"success":1})
@@ -440,8 +444,6 @@ def add_payment():
                     order.save_to_db()
                 else:
                     pass
-
-
 
             payment = Payment(date, bank_name, amount_paid)
             #retrieve customer..

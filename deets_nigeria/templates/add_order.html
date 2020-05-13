@@ -11,6 +11,7 @@
 
         $("#check_warehouse").hide();
         $("#add_order").hide();
+        $("#invalid_input").hide();
 
         // display datepicker ..
 
@@ -168,6 +169,11 @@
     //prevent form from submitting and submit via ajax..
     $("#order_form").submit(function(e)
     {
+            $('#submit_btn').prop('disabled',true);
+
+            //disable btn to prevent user from submitting twice..
+            $('#submit_btn').css('cursor','wait');
+
             e.preventDefault(e);
 
 
@@ -184,17 +190,40 @@
 
                     success:function(data)
                     {
+
                         //check if sufficient quantity of product
                         if (data.success===0) {
                          $("#check_warehouse").show().delay(2000).fadeOut();
+
+
+                             $("#submit_btn").prop('disabled',false);
+
+
+                            $('#submit_btn').css('cursor','default');
                         }
                         else if(data.success===1)
                         {
                          $("#add_order").show().delay(2000).fadeOut();
+                         window.location.href = "/add_payment"
+
+                        }
+
+                        else if (data.success===2){
+
+                            $("#invalid_input").show().delay(2000).fadeOut();
+
+                            $("#submit_btn").prop('disabled',false);
+
+
+                            $('#submit_btn').css('cursor','default');
 
 
 
                         }
+
+
+
+
 
                     },
 
@@ -239,6 +268,12 @@
                 Insufficient product in warehouse
         </div>
 
+
+        <div class="alert alert-danger alert-dismissible fade show" id="invalid_input" role="alert">
+                Invalid input quantity
+        </div>
+
+
         <div class="alert alert-success alert-dismissible fade show" id="add_order" role="alert">
             Succesfully added order
         </div>
@@ -261,8 +296,8 @@
         <div class="form-group row" >
             <div class="col-md-6">
                 <label for="customerName">Customer Name</label>
-                <select class="form-control" id="customerName" name="customerName">
-                    <option value="" selected disabled hidden>Please Select customer</option>
+                <select class="form-control" id="customerName" name="customerName" required>
+                    <option value="" selected disabled hidden>Please Select customers</option>
 
                             {% for customer in customers %}
                                 <option>{{customer.name}}</option>
@@ -323,7 +358,7 @@
         </table>
 
             <button type="button" class="btn btn-primary" id="addrow">Add Product</button>
-            <input type="submit" class="btn btn-success" value ="Save Changes"/>
+            <input type="submit" class="btn btn-success" value ="Save Changes" id="submit_btn"/>
 
                 <div class="float-md-right">
                     <label for="totalAmount" >Total price</label>
