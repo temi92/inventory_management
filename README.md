@@ -1,6 +1,8 @@
 # inventory_management
 a web app for managing sales, purchasing and production operations for small companies
 
+Vist : [https://demoinventorymanagement.herokuapp.com/](https://demoinventorymanagement.herokuapp.com/) to access the app
+
 ### *Functionalites*
 1. Create and manage customers
 2. Add, Edit or Delete stock from warehouse
