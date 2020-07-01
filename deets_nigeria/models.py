@@ -87,7 +87,7 @@ class Orders(Base, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.DateTime, nullable=False)
     order_id = db.Column(db.String(200), nullable=False, unique=True)
-    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"))
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"), nullable=False)
     paid_status = db.Column(db.Boolean, default=False, nullable=False)
     total_amount = db.Column(db.Float)
     orders = db.relationship("OrderItem", backref="order", lazy="select", cascade="all, delete-orphan")
